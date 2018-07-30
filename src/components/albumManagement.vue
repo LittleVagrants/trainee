@@ -12,12 +12,12 @@
 
       </div>
       <div class="contentDiv">
-        <el-table :data="albumInfoData" v-if="getAlbumInfo">
-          <el-table-column prop="user.name" label="姓名" align="left" width="260">
+        <el-table :data="tableInfoData" v-if="getAlbumInfo">
+          <el-table-column prop="name" label="姓名" align="left" width="260">
           </el-table-column>
           <el-table-column label="照片" align="center" width="160">
             <template slot-scope="scope">
-              <el-button type="primary" plain size="small" @click="dialogPicture = true">查看详情</el-button>
+              <el-button type="primary" plain size="small" @click="getAlbumInfo(scope.row)">查看详情</el-button>
             </template>
           </el-table-column>
           <el-table-column align="center">
@@ -67,29 +67,51 @@ export default {
   data() {
     return {
       dialogPicture: false,
-      albumInfoData: []
+      albumInfoData: [],
+      tableInfoData:[]
     };
   },
   watch: {},
   computed: {},
   methods: {
-    getAlbumInfo() {
+    getTableInfo() {
+      let query = {
+        userToken: "4eaabded5c1f480d807a598187aef982"
+      };
+      this.$axios.get("api/user/findUserList", { params: query }).then(res => {
+        console.log(res)
+        if ((res.data.code = "0")) {
+          this.tableInfoData = res.data.data;
+        } else {
+          console.log("请求失败！");
+        }
+      });
+    },
+    getAlbumInfo(schoolData) {
+      this.dialogPicture = true;
+      // console.log("____________________________")
+      // console.log(schoolData)
+      let query = {
+        userToken: this.$userToken,
+        userId: schoolData.jobHunter.user.id
+      };
       this.$axios
-        .get(
-          "api/photo/findPhotoListByUser?userToken=4eaabded5c1f480d807a598187aef982"
-        )
+        .get("api/schoolCertificate/findSchoolCertificateByUserId", {
+          params: query
+        })
         .then(res => {
-          if ((res.data.code = "0")) {
-            this.albumInfoData = res.data.data;
-            console.log(this.albumInfoData);
-          } else {
-            console.log("请求失败！");
+          console.log(res);
+          if (res.status === 200) {
+            this.schoolInfoData = res.data.data;
+            // console.log(this.schoolInfoData)
+            // this.dialogSchool = true;
+            // console.log(this.schoolInfoData.schoolCertificate.id);
           }
         });
-    }
+    },
   },
   created() {
-    this.getAlbumInfo();
+    this.getTableInfo();
   },
   mounted() {}
 };

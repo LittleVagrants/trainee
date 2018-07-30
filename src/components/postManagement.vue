@@ -35,7 +35,7 @@
           </el-table-column>
         </el-table>
       </div>
-      <el-dialog :title="title" :visible.sync="dialogVisible" width="45%" :before-close="handleClose">
+      <el-dialog :title="title" :visible.sync="dialogVisible" width="60%" :before-close="handleClose">
         <el-form ref="form" label-width="100px">
           <el-form-item label="职位">
             <el-input class="dialogInput" v-model="postName"></el-input>
@@ -59,7 +59,7 @@
           </el-form-item> -->
           <el-form-item label="职位相册">
             <!-- <input type="file"> -->
-            <el-upload action="http://192.168.6.31:8080" ref="upload" list-type="picture-card" :file-list='positionVisibleArr' :on-preview="handlePictureCardPreview" :auto-upload="false" :limit="6" :on-remove="handleRemove">
+            <el-upload action="string" :http-request="uploadSectionFile" ref="upload" list-type="picture-card" :file-list='positionVisibleArr' :on-preview="handlePictureCardPreview" :auto-upload="false" :limit="6" :on-remove="handleRemove">
               <i class="el-icon-plus"></i>
             </el-upload>
           </el-form-item>
@@ -81,6 +81,7 @@
   </div>
 </template>
 <script>
+import qs from "qs";
 export default {
   data() {
     return {
@@ -89,53 +90,55 @@ export default {
       postName: "",
       postInfo: "",
       postId: null,
-      postPicId: "",
+      postPicId: null,
       positionImgArr: null,
       positionImgVisible: false,
       positionVisibleArr: [],
       aImgVisible: false,
       dialogImageUrl: "",
       selectPositionId: null,
-      title:''
+      deleteImg: null,
+      title: ""
     };
   },
   watch: {},
   computed: {},
   methods: {
-    closeDialog(){
-      this.dialogVisible=false
-      this.positionVisibleArr = []
+    uploadSectionFile(param) {
+      var form = new FormData();
+      form.append("photoFiles", param.file);
+      form.append("userToken", this.$userToken);
+      form.append("positionId", this.selectPositionId);
+      this.$axios.post("/api/positionPicture/save", form).then(res => {
+        console.log(res);
+        if (res.status === 200) {
+          if (res.data.msg === "保存职位详细图片成功！") {
+            console.log("成功");
+          }
+        }
+      });
     },
-    addPosition(){
-      this.dialogVisible = true
-      this.title = '添加职位信息'
-      this.postName = ''
-      this.postInfo = ''
-      this.positionVisibleArr = []
+    closeDialog() {
+      this.dialogVisible = false;
+      this.positionVisibleArr = [];
+    },
+    addPosition() {
+      this.dialogVisible = true;
+      this.title = "添加职位信息";
+      this.postName = "";
+      this.postInfo = "";
+      this.positionVisibleArr = [];
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
       this.aImgVisible = true;
     },
     handleRemove(file) {
-      let query = {
+      this.deleteImg = {
         userToken: this.$userToken,
         positionId: this.selectPositionId,
         pictureId: file.id
       };
-      this.$axios
-        .delete("/api/positionPicture/delete", { params: query })
-        .then(res => {
-          console.log(res)
-          if (res.status === 200) {
-            if (res.data.msg === "删除职位详细图片成功！") {
-              this.$message({
-                message: "删除成功",
-                type: "success"
-              });
-            }
-          }
-        });
     },
     getEduInfo(info) {
       this.$axios
@@ -167,7 +170,7 @@ export default {
     handleClose(done) {
       this.$confirm("确认关闭？")
         .then(_ => {
-          this.positionVisibleArr = []
+          this.positionVisibleArr = [];
           done();
         })
         .catch(_ => {});
@@ -188,13 +191,14 @@ export default {
     },
     // 选择该项
     choosePost(data, i) {
-      this.title = '修改职位信息'
+      this.title = "修改职位信息";
       this.selectPositionId = data.id;
       this.$axios
         .get("/api/positionPicture/findPositionPictureByPosition", {
           params: { positionId: data.id }
         })
         .then(res => {
+          console.log(res)
           if (res.status === 200) {
             var tempUrl = {};
             this.positionVisibleArr = [];
@@ -212,32 +216,79 @@ export default {
       this.postName = data.name;
       this.postInfo = data.information;
       this.index = i;
+      this.postId = data.id;
     },
     // 修改职位信息
     changePostInfo() {
-      console.log(this.$refs.upload);
-      this.$refs.upload.submit();
-      let query = {
-        id: this.postId,
-        name: this.postName,
-        information: this.postInfo,
-        newResourcesId: this.postPicId,
-        userToken: "4eaabded5c1f480d807a598187aef982"
-      };
-      this.$axios.put("api/position/update", query).then(res => {
-        if (this.postName == "" || this.getPostInfo == "") {
+      if (this.title === "修改职位信息") {
+        let query = {
+          id: this.postId,
+          name: this.postName,
+          information: this.postInfo,
+          newResourcesId: this.postPicId,
+          userToken: this.$userToken
+        };
+        console.log(query)
+        this.$axios.put("api/position/update",  qs.stringify(query)).then(res => {
+          console.log(res)
+          if (this.postName == "" || this.getPostInfo == "") {
+            this.$message({
+              showClose: true,
+              message: "警告，职位名和职位信息不能为空!",
+              type: "warning"
+            });
+          } else {
+            this.postInfoData[this.index].name = this.postName;
+            this.postInfoData[this.index].information = this.postInfo;
+            this.postInfoData[this.index].newResourcesId = this.postPicId;
+            this.dialogVisible = false;
+            if (this.deleteImg !== null) {
+              this.$axios
+                .delete("/api/positionPicture/delete", {
+                  params: this.deleteImg
+                })
+                .then(res => {
+                  if (res.status === 200) {
+                    if (res.data.msg === "删除职位详细图片成功！") {
+                      this.$refs.upload.submit();
+                    }
+                  }
+                });
+            } else {
+              this.$refs.upload.submit();
+            }
+          }
           this.$message({
-            showClose: true,
-            message: "警告，职位名和职位信息不能为空，不然李老师会骂人的哦",
-            type: "warning"
+            message: "职位信息保存成功",
+            type: "success"
           });
-        } else {
-          this.postInfoData[this.index].name = this.postName;
-          this.postInfoData[this.index].information = this.postInfo;
-          this.postInfoData[this.index].newResourcesId = this.postPicId;
-          this.dialogVisible = false;
-        }
-      });
+        });
+      } else {
+        let query = {
+          name: this.postName,
+          information: this.postInfo,
+          userToken: this.$userToken
+        };
+        this.$axios
+          .post("/api/position/save", qs.stringify(query))
+          .then(res => {
+            if (res.status === 200) {
+              console.log(res);
+              if (res.data.msg === "职位添加成功") {
+                this.selectPositionId = res.data.data.id;
+                this.$refs.upload.submit();
+                this.dialogVisible = false;
+                this.getPostInfo();
+                this.$message({
+                  message: "职位添加成功",
+                  type: "success"
+                });
+              }else if(res.data.msg === "职位已存在！"){
+                this.$message.error('该职位已存在')
+              }
+            }
+          });
+      }
     },
     // 删除职位
     dialogDeletePost(i, data) {
@@ -248,19 +299,26 @@ export default {
       })
         .then(() => {
           let query = {
-            userToken: "4eaabded5c1f480d807a598187aef982",
+            userToken: this.$userToken,
             id: data[i].id
           };
-          this.$axios.delete("api/position/delete", query).then(res => {
-            this.$message({
-              type: "success",
-              message: "删除成功!"
+          this.$axios
+            .delete("api/position/delete", { params: query })
+            .then(res => {
+              console.log(res);
+              if (res.status === 200) {
+                if (res.data.msg === "删除职位信息成功!") {
+                  this.$message({
+                    type: "success",
+                    message: "删除成功!"
+                  });
+                  // 本地删除，缺点，前后台若不同步，前后台数据不一致
+                  this.postInfoData.splice(i, 1);
+                  // 删除，重调接口
+                  // this.getPostInfo()
+                }
+              }
             });
-            // 本地删除，缺点，前后台若不同步，前后台数据不一致
-            this.postInfoData.splice(i, 1);
-            // 删除，重调接口
-            // this.getPostInfo()
-          });
         })
         .catch(() => {
           this.$message({

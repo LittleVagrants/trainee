@@ -60,9 +60,10 @@
           <el-button @click="dialogEducation = false">关 闭</el-button>
         </div>
       </el-dialog>
-      <el-dialog :data="jobHunterInfoData" title="在校证明" :visible.sync="dialogSchool" width="30%">
-        <div>
-          <img v-for="item in jobHunterInfoData" :key="item.id" class="viewPositionImg" :src="'/api/schoolCertificate/findSchoolCertificateByUserId?id='+item.positionPicture.id" alt="">
+      <el-dialog title="在校证明" :visible.sync="dialogSchool" width="30%">
+        <div class="schoolImg">
+          <img v-for="item in schoolInfoData" :key="item.id" class="viewPositionImg" :src="'/api/resources/findResourcesById?id=96'" alt="">
+          <!-- +item.schoolCertificate.id -->
         </div>
       </el-dialog>
     </div>
@@ -91,7 +92,8 @@ export default {
       // 数据展示页
       currentPage: 1,
       jobSeekerInfoData: [],
-      jobHunterInfoData: []
+      jobHunterInfoData: [],
+      schoolInfoData: null
     };
   },
   watch: {},
@@ -125,12 +127,14 @@ export default {
     //     .catch(_ => {});
     // },
     getSchoolInfo(schoolData) {
-      this.dialogSchool = true;
-      console.log("____________________________")
+      console.log("______________________________")
       console.log(schoolData)
+      this.dialogSchool = true;
+      // console.log("____________________________")
+      // console.log(schoolData)
       let query = {
         userToken: this.$userToken,
-        id: schoolData.jobHunter.id
+        userId: schoolData.jobHunter.user.id
       };
       this.$axios
         .get("api/schoolCertificate/findSchoolCertificateByUserId", {
@@ -138,6 +142,12 @@ export default {
         })
         .then(res => {
           console.log(res);
+          if (res.status === 200) {
+            this.schoolInfoData = res.data.data;
+            // console.log(this.schoolInfoData)
+            // this.dialogSchool = true;
+            // console.log(this.schoolInfoData.schoolCertificate.id);
+          }
         });
     },
     getEduInfo(eduData) {
@@ -193,5 +203,12 @@ export default {
 .el-dialog {
   padding-bottom: 100px;
   overflow: hidden;
+}
+.schoolImg{
+  padding:0 20%;
+}
+.viewPositionImg {
+  width: 300px;
+  margin: 30px auto;
 }
 </style>
