@@ -36,24 +36,9 @@
       </div> -->
       <!-- 照片详情查看弹框 -->
       <el-dialog title="照片详情" :visible.sync="dialogPicture" width="30%">
-        <el-upload ref="">
-          <img :src="1">
-        </el-upload>
-        <el-upload ref="">
-          <img :src="1">
-        </el-upload>
-        <el-upload ref="">
-          <img :src="1">
-        </el-upload>
-        <el-upload ref="">
-          <img :src="1">
-        </el-upload>
-        <el-upload ref="">
-          <img :src="1">
-        </el-upload>
-        <el-upload ref="">
-          <img :src="1">
-        </el-upload>
+        <div class="albumImg">
+          <img v-for="item in albumInfoData" :key="item.id" class="viewAlbumImg" :src="'/api/resources/findResourcesById?id='+item.resources.id" alt="">
+        </div>
         <span slot="footer" class="dialog-footer">
           <el-button type="primary" size="small">确 定</el-button>
         </span>
@@ -68,7 +53,8 @@ export default {
     return {
       dialogPicture: false,
       albumInfoData: [],
-      tableInfoData:[]
+      tableInfoData: [],
+      
     };
   },
   watch: {},
@@ -79,7 +65,6 @@ export default {
         userToken: "4eaabded5c1f480d807a598187aef982"
       };
       this.$axios.get("api/user/findUserList", { params: query }).then(res => {
-        console.log(res)
         if ((res.data.code = "0")) {
           this.tableInfoData = res.data.data;
         } else {
@@ -87,28 +72,22 @@ export default {
         }
       });
     },
-    getAlbumInfo(schoolData) {
+    getAlbumInfo(albumData) {
       this.dialogPicture = true;
-      // console.log("____________________________")
-      // console.log(schoolData)
       let query = {
         userToken: this.$userToken,
-        userId: schoolData.jobHunter.user.id
+        userId: albumData.id
       };
       this.$axios
-        .get("api/schoolCertificate/findSchoolCertificateByUserId", {
+        .get("api/photo/findPhotoListByUserId", {
           params: query
         })
         .then(res => {
-          console.log(res);
           if (res.status === 200) {
-            this.schoolInfoData = res.data.data;
-            // console.log(this.schoolInfoData)
-            // this.dialogSchool = true;
-            // console.log(this.schoolInfoData.schoolCertificate.id);
+            this.albumInfoData = res.data.data;
           }
         });
-    },
+    }
   },
   created() {
     this.getTableInfo();
@@ -117,4 +96,11 @@ export default {
 };
 </script>
 <style scoped>
+.albumImg{
+  padding:0 21%;
+}
+.viewAlbumImg {
+  width: 300px;
+  margin: 30px auto;
+}
 </style>

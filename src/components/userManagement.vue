@@ -12,6 +12,9 @@
           <input v-model="findPhoneNum" type="tel" class="searchInput" placeholder="搜索电话号码">
           <el-button type="primary" size="small" class="searchButton" @click="findNum">搜索</el-button>
         </div>
+        <div class="functionalArea">
+          <el-button type="primary" size="small" class="searchButton" @click="allUserInfo">全部用户信息</el-button>
+        </div>
       </div>
       <div class="contentDiv">
         <el-table v-if="getTableInfo" :data="tableInfoData.slice((currentPage-1)*size,currentPage*size)">
@@ -38,32 +41,6 @@
         <el-pagination ref="pages" layout=" total, prev, pager, next, jumper" :total="total" :page-size="size" @current-change="setCurrent">
         </el-pagination>
       </div>
-      <!-- <el-dialog title="修改用户信息" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
-        <el-form ref="form" label-width="100px">
-          <el-form-item label="姓名">
-            <el-input></el-input>
-          </el-form-item>
-          <el-form-item label="电话号码">
-            <el-input></el-input>
-          </el-form-item>
-          <el-form-item label="性别">
-            <el-input></el-input>
-          </el-form-item>
-          <el-form-item label="生日">
-            <el-input></el-input>
-          </el-form-item>
-          <el-form-item label="星座">
-            <el-input></el-input>
-          </el-form-item>
-          <el-form-item label="注册时间">
-            <el-input></el-input>
-          </el-form-item>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button size="small">取 消</el-button>
-          <el-button type="primary" size="small">确 定</el-button>
-        </span>
-      </el-dialog> -->
     </div>
   </div>
 </template>
@@ -125,6 +102,9 @@ export default {
               this.tableInfoData[i].sex = "女";
             } else if (this.tableInfoData[i].sex == true) {
               this.tableInfoData[i].sex = "男";
+            };
+            if(this.tableInfoData[i].phoneNumber==0){
+              this.tableInfoData[i].phoneNumber="无"
             }
           }
         } else {
@@ -180,6 +160,9 @@ export default {
             console.log("请求失败！");
           }
         });
+    },
+    allUserInfo(){
+      this.getTableInfo();
     }
   },
   created() {

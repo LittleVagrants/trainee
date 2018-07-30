@@ -7,7 +7,9 @@
       <el-header class="homeHeader">
         <h1>管培生-管理系统</h1>
         <el-tooltip class="exitButton" content="退出系统" placement="bottom" effect="light">
-          <el-button class="exitIcon"><i class="iconfont icon-084tuichu"></i></el-button>
+          <el-button class="exitIcon" @click="exitTrainee()">
+            <i class="iconfont icon-084tuichu"></i>
+          </el-button>
         </el-tooltip>
 
       </el-header>
@@ -81,6 +83,39 @@ export default {
     },
     handleClose(key, keyPath) {
       // console.log(key, keyPath);
+    },
+    exitTrainee() {
+      const h = this.$createElement;
+      this.$msgbox({
+        center: "true",
+        message: h("p", { style: "margin-bottom:20px;font-size:16px;" }, [
+          h("span", null, "您确定要退出登录系统吗")
+        ]),
+        showCancelButton: true,
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        beforeClose: (action, instance, done) => {
+          if (action === "confirm") {
+            instance.confirmButtonLoading = true;
+            instance.confirmButtonText = "退出中..";
+            setTimeout(() => {
+              done();
+              window.sessionStorage.removeItem("isLog");
+              this.$router.push("/login");
+              setTimeout(() => {
+                instance.confirmButtonLoading = false;
+              }, 300);
+            }, 1500);
+          } else {
+            done();
+          }
+        }
+      }).then(action => {
+        this.$message({
+          type: "success",
+          message: "退出成功"
+        });
+      });
     }
   },
   mounted() {
@@ -105,14 +140,14 @@ h2 {
   color: white;
   background-color: #08a2ba;
 }
-.hello .exitButton{
+.hello .exitButton {
   float: right;
   margin: 10px 1.2% 0 0;
   color: white;
-  border-radius:30px
+  border-radius: 30px;
 }
-.hello .exitIcon{
-  background-color: rgba(0, 0, 0, 0.2)
+.hello .exitIcon {
+  background-color: rgba(0, 0, 0, 0.2);
 }
 .hello .el-aside {
   background-color: #28323d;

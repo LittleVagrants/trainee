@@ -6,8 +6,12 @@
       <div class="contentHeader">
         <h4>求职者信息</h4>
         <div class="functionalArea">
-          <!-- <input type="text" class="searchInput" placeholder="请输入搜索内容">
-          <el-button type="primary" size="small" class="searchButton">搜索</el-button> -->
+          <!-- 下拉框选择 -->
+          <!-- <span class="dropdownPrompt">请选择职位：</span>
+          <el-select @change="selectJob" class="dropdownContent" v-model="jobInfo.id" placeholder="请选择角色">
+            <el-option v-for="item in jobInfo" :key="item.id" :label="item.name" :value="item.id">
+            </el-option>
+          </el-select> -->
         </div>
 
       </div>
@@ -20,6 +24,8 @@
           <el-table-column prop="jobHunter.advantage" label="求职者优势" align="left">
           </el-table-column>
           <el-table-column prop="teachersRecommend" label="名师点评" align="center">
+          </el-table-column>
+          <el-table-column prop="position.name" label="求职职位" align="center">
           </el-table-column>
           <el-table-column prop="" label="在校证明" align="center">
             <template slot-scope="scope">
@@ -62,7 +68,7 @@
       </el-dialog>
       <el-dialog title="在校证明" :visible.sync="dialogSchool" width="30%">
         <div class="schoolImg">
-          <img v-for="item in schoolInfoData" :key="item.id" class="viewPositionImg" :src="'/api/resources/findResourcesById?id=96'" alt="">
+          <img v-for="item in schoolInfoData" :key="item.id" class="viewPositionImg" :src="'/api/resources/findResourcesById?id='+item.schoolCertificate.id" alt="">
           <!-- +item.schoolCertificate.id -->
         </div>
       </el-dialog>
@@ -93,7 +99,8 @@ export default {
       currentPage: 1,
       jobSeekerInfoData: [],
       jobHunterInfoData: [],
-      schoolInfoData: null
+      schoolInfoData: [],
+      jobInfo: []
     };
   },
   watch: {},
@@ -115,23 +122,10 @@ export default {
   methods: {
     // 设置分页
     setCurrent(val) {
-      console.log(val);
       this.current = val;
       this.currentPage = val;
     },
-    // handleClose(done) {
-    //   this.$confirm("确认关闭？")
-    //     .then(_ => {
-    //       done();
-    //     })
-    //     .catch(_ => {});
-    // },
     getSchoolInfo(schoolData) {
-      console.log("______________________________")
-      console.log(schoolData)
-      this.dialogSchool = true;
-      // console.log("____________________________")
-      // console.log(schoolData)
       let query = {
         userToken: this.$userToken,
         userId: schoolData.jobHunter.user.id
@@ -141,14 +135,19 @@ export default {
           params: query
         })
         .then(res => {
-          console.log(res);
-          if (res.status === 200) {
-            this.schoolInfoData = res.data.data;
-            // console.log(this.schoolInfoData)
-            // this.dialogSchool = true;
-            // console.log(this.schoolInfoData.schoolCertificate.id);
+          // console.log(res);
+          if ((res.status === 200) & (res.data.data != null)) {
+            this.dialogSchool = true;
+            this.schoolInfoData.push(res.data.data);
+          } else {
+            this.dialogSchool = false;
+            this.$message({
+              type: "success",
+              message: "该用户没有在校证明!"
+            });
           }
         });
+      this.schoolInfoData = [];
     },
     getEduInfo(eduData) {
       this.dialogEducation = true;
@@ -176,11 +175,26 @@ export default {
           // console.log(res);
           if ((res.data.code = "0")) {
             this.jobSeekerInfoData = res.data.data;
+            for (let i = 0; i < this.jobSeekerInfoData.length; i++) {
+              if (this.jobSeekerInfoData[i].jobHunter.user.phoneNumber === 0) {
+                this.jobSeekerInfoData[i].jobHunter.user.phoneNumber = "无";
+              }
+            }
           } else {
             console.log("请求失败！");
           }
         });
-    }
+    },
+    // selectJob() {
+    //   this.$axios.get("api/positionInformation/findPositionInformationList",{params:this.$userToken}).then(res => {
+    //     if ((res.data.code = "0")) {
+    //       console.log("1111111111111111111111");
+    //       this.jobInfo = res.data.data;
+    //     } else {
+    //       console.log("请求失败！");
+    //     }
+    //   });
+    // }
   },
   created() {
     this.getJobSeekerInfo();
@@ -204,8 +218,8 @@ export default {
   padding-bottom: 100px;
   overflow: hidden;
 }
-.schoolImg{
-  padding:0 20%;
+.schoolImg {
+  padding: 0 21%;
 }
 .viewPositionImg {
   width: 300px;

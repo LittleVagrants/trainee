@@ -70,7 +70,7 @@ export default {
             } else if(res.data.code == "0"){
               console.log("登陆成功")
               sessionStorage.setItem('isLog','true');
-              this.$router.push("/home");
+              this.$router.push("/home/userManagement");
             }
         } else {
 

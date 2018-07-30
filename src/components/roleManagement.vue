@@ -12,9 +12,9 @@
             <el-option v-for="item in roleList" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
           </el-select>
-          <!-- 搜索区域 -->
-          <!-- <input type="text" class="searchInput" placeholder="请输入搜索内容">
-          <el-button type="primary" size="small" class="searchButton">搜索</el-button> -->
+        </div>
+        <div class="functionalArea">
+          <el-button type="primary" size="small" class="searchButton" @click="allRoleInfo">全部信息</el-button>
         </div>
       </div>
 
@@ -43,7 +43,6 @@
         <el-pagination ref="pages" layout=" total, prev, pager, next, jumper" :total="total" :page-size="size" @current-change="setCurrent">
         </el-pagination>
       </div>
-
       <el-dialog title="修改用户信息" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
         <el-form ref="form" label-width="100px">
           <el-form-item label="姓名">
@@ -108,7 +107,7 @@ export default {
     setCurrent(val) {
       // console.log(val);
       this.current = val;
-      this.currentPage = val
+      this.currentPage = val;
     },
     handleClose(done) {
       this.$confirm("确认关闭？")
@@ -121,24 +120,21 @@ export default {
       let query = {
         userToken: this.$userToken
       };
-      this.$axios
-        .get("api/role/findRoleList",{params:query})
-        .then(res => {
-          if ((res.data.code = "0")) {
-            this.roleList = res.data.data;
-            // console.log(this.roleList);
-          } else {
-            console.log("请求失败！");
-          }
-        });
+      this.$axios.get("api/role/findRoleList", { params: query }).then(res => {
+        if ((res.data.code = "0")) {
+          this.roleList = res.data.data;
+          console.log(this.roleList);
+        } else {
+          console.log("请求失败！");
+        }
+      });
     },
     getRoleInfo() {
       let query = {
         userToken: this.$userToken
       };
       this.$axios
-        .get(
-          "api/userRole/findUserAndRole",{params:query})
+        .get("api/userRole/findUserAndRole", { params: query })
         .then(res => {
           if ((res.data.code = "0")) {
             this.roleInfoData = res.data.data;
@@ -164,13 +160,8 @@ export default {
       this.roleId = data[i].role.id;
     },
     getNewRole(id) {
-      // console.log(id)
-      if(id==1){
-        this.exchangeRoleName=="超级管理员"
-      }else if(id==2){
-        this.exchangeRoleName=="管培生"
-
-      }
+      console.log(this.roleList[i])
+      this.roleList[i].id = id;
     },
     // 根据选择值做出改变
     changeUserRole() {
@@ -190,20 +181,22 @@ export default {
       console.log(e);
       let query = {
         userToken: this.$userToken,
-        roleId:e
+        roleId: e
       };
       this.$axios
-        .get(
-          "api/userRole/findUserByRole",{params:query})
+        .get("api/userRole/findUserByRole", { params: query })
         .then(res => {
           if ((res.data.code = "0")) {
-            console.log(res)
+            console.log(res);
             this.roleInfoData = res.data.data;
             // console.log(this.roleInfoData)
           } else {
             console.log("请求失败！");
           }
         });
+    },
+    allRoleInfo() {
+      this.getRoleInfo();
     }
   },
   created() {
