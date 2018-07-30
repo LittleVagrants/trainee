@@ -12,7 +12,7 @@
 
       </div>
       <div class="contentDiv">
-        <el-table :data="tableInfoData" v-if="getAlbumInfo">
+        <el-table :data="tableInfoData.slice((currentPage-1)*size,currentPage*size)" v-if="getAlbumInfo">
           <el-table-column prop="name" label="姓名" align="left" width="260">
           </el-table-column>
           <el-table-column label="照片" align="center" width="160">
@@ -21,19 +21,14 @@
             </template>
           </el-table-column>
           <el-table-column align="center">
-            <!-- <template slot-scope="scope">
-              <el-button icon="el-icon-search" circle size="mini"></el-button>
-              <el-button type="primary" icon="el-icon-edit" circle size="mini"></el-button>
-              <el-button type="danger" icon="el-icon-delete" circle size="mini"></el-button>
-            </template> -->
           </el-table-column>
 
         </el-table>
       </div>
-      <!-- <div class="paginationDiv">
-        <el-pagination ref="pages" layout=" prev, pager, next, jumper" @current-change="currentChange" @size-change="sizeChange" :page-size="pageSize" :current-page="currentPage">
+      <div class="paginationDiv">
+        <el-pagination ref="pages" layout=" total, prev, pager, next, jumper" :total="total" :page-size="size" @current-change="setCurrent">
         </el-pagination>
-      </div> -->
+      </div>
       <!-- 照片详情查看弹框 -->
       <el-dialog title="照片详情" :visible.sync="dialogPicture" width="30%">
         <div class="albumImg">
@@ -54,12 +49,37 @@ export default {
       dialogPicture: false,
       albumInfoData: [],
       tableInfoData: [],
-      
+      // 默认打开页
+      current: 1,
+      // 每页展示条数
+      size: 12,
+      // 数据展示页
+      currentPage: 1
     };
   },
   watch: {},
-  computed: {},
+  computed: {
+    // 计算分页
+    data1() {
+      var arr = [];
+      var current = this.current;
+      var size = this.size;
+      for (var i = (current - 1) * size; i < (current - 1) * size + size; i++) {
+        if (this.data[i]) arr.push(this.data[i]);
+      }
+      return arr;
+    },
+    total() {
+      return this.tableInfoData.length;
+    }
+  },
   methods: {
+    // 设置分页
+    setCurrent(val) {
+      console.log(val);
+      this.current = val;
+      this.currentPage = val;
+    },
     getTableInfo() {
       let query = {
         userToken: "4eaabded5c1f480d807a598187aef982"
@@ -73,7 +93,6 @@ export default {
       });
     },
     getAlbumInfo(albumData) {
-      this.dialogPicture = true;
       let query = {
         userToken: this.$userToken,
         userId: albumData.id
@@ -83,8 +102,16 @@ export default {
           params: query
         })
         .then(res => {
-          if (res.status === 200) {
+          console.log(res);
+          if ((res.status === 200) & (res.data.data != null)) {
+            this.dialogPicture = true;
             this.albumInfoData = res.data.data;
+          } else {
+            this.dialogPicture = false;
+            this.$message({
+              type: "success",
+              message: "该用户没有在校证明!"
+            });
           }
         });
     }
@@ -96,8 +123,8 @@ export default {
 };
 </script>
 <style scoped>
-.albumImg{
-  padding:0 21%;
+.albumImg {
+  padding: 0 21%;
 }
 .viewAlbumImg {
   width: 300px;
