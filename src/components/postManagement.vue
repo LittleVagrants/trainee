@@ -257,7 +257,7 @@ export default {
               message: "删除成功!"
             });
             // 本地删除，缺点，前后台若不同步，前后台数据不一致
-            this.postInfoData.splice(this.index, 1);
+            this.postInfoData.splice(i, 1);
             // 删除，重调接口
             // this.getPostInfo()
           });

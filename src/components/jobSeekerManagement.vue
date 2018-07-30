@@ -20,57 +20,26 @@
           <el-table-column prop="jobHunter.advantage" label="求职者优势" align="left">
           </el-table-column>
           <el-table-column prop="teachersRecommend" label="名师点评" align="center">
-            <!-- <template slot-scope="scope">
-              <el-button type="primary" plain size="small" @click="dialogTeacher = true">查看详情</el-button>
-            </template> -->
           </el-table-column>
-          <!-- <el-table-colum prop="" label="在校证明" align="center">
-
-          </el-table-colum> -->
+          <el-table-column prop="" label="在校证明" align="center">
+            <template slot-scope="scope">
+              <el-button type="primary" plain size="small" @click="getSchoolInfo(scope.row)">查看详情</el-button>
+            </template>
+          </el-table-column>
           <el-table-column prop="" label="教育经历" align="center">
             <template slot-scope="scope">
               <el-button type="primary" plain size="small" @click="getEduInfo(scope.row)">查看详情</el-button>
             </template>
           </el-table-column>
-          <!-- <el-table-column prop="" label="简历" align="center">
-            <template slot-scope="scope">
-              <el-button type="primary" plain size="small" @click="dialogResume = true">查看详情</el-button>
-            </template>
-          </el-table-column> -->
-          <!-- <el-table-column label="操作" align="center">
-            <template slot-scope="scope">
-              <el-button icon="el-icon-search" circle size="mini"></el-button>
-              <el-button type="primary" icon="el-icon-edit" circle size="mini"></el-button>
-              <el-button type="danger" icon="el-icon-delete" circle size="mini"></el-button>
-            </template>
-          </el-table-column> -->
-
         </el-table>
       </div>
       <div class="paginationDiv">
         <el-pagination ref="pages" layout=" total, prev, pager, next, jumper" :total="total" :page-size="size" @current-change="setCurrent">
         </el-pagination>
       </div>
-      <!-- 名师点评详情查看弹框 -->
-      <!-- <el-dialog :data="jobHunterInfoData" title="名师点评" :visible.sync="dialogTeacher" width="30%">
-        <div prop="teachersRecommend">
-        </div>
-      </el-dialog> -->
-      <!-- 教育经历详情查看弹框 -->
       <el-dialog :data="jobHunterInfoData" title="教育经历" :visible.sync="dialogEducation" width="30%">
         <div prop="teachersRecommend">
         </div>
-        <!-- <el-form label-width="80px">
-          <el-form-item label="学校">
-            {{eduInfoData.school}}
-          </el-form-item>
-          <el-form-item label="专业">
-            {{eduInfoData.specialty}}
-          </el-form-item>
-          <el-form-item label="学历">
-            {{eduInfoData.educationBackground}}
-          </el-form-item>
-        </el-form> -->
         <el-row>
           <el-col :offset="4" :span="3" class="title">学校:</el-col>
           <el-col :span="6">{{eduInfoData.school}}</el-col>
@@ -91,11 +60,11 @@
           <el-button @click="dialogEducation = false">关 闭</el-button>
         </div>
       </el-dialog>
-      <!-- 简历详情查看弹框 -->
-      <!-- <el-dialog :data="jobHunterInfoData" title="简历" :visible.sync="dialogResume" width="30%">
-        <div prop="teachersRecommend">
+      <el-dialog :data="jobHunterInfoData" title="在校证明" :visible.sync="dialogSchool" width="30%">
+        <div>
+          <img v-for="item in jobHunterInfoData" :key="item.id" class="viewPositionImg" :src="'/api/schoolCertificate/findSchoolCertificateByUserId?id='+item.positionPicture.id" alt="">
         </div>
-      </el-dialog> -->
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -105,7 +74,7 @@ export default {
   data() {
     return {
       // 名师点评，教育经历，简历弹框判断
-      dialogTeacher: false,
+      dialogSchool: false,
       dialogEducation: false,
       dialogResume: false,
       eduInfoData: {
@@ -113,16 +82,16 @@ export default {
         specialty: "",
         educationBackground: "",
         startTime: "",
-        endTime: "",
+        endTime: ""
       },
-        // 默认打开页
-        current: 1,
-        // 每页展示条数
-        size: 12,
-        // 数据展示页
-        currentPage: 1, 
-        jobSeekerInfoData: [],
-        jobHunterInfoData: []
+      // 默认打开页
+      current: 1,
+      // 每页展示条数
+      size: 12,
+      // 数据展示页
+      currentPage: 1,
+      jobSeekerInfoData: [],
+      jobHunterInfoData: []
     };
   },
   watch: {},
@@ -155,6 +124,22 @@ export default {
     //     })
     //     .catch(_ => {});
     // },
+    getSchoolInfo(schoolData) {
+      this.dialogSchool = true;
+      console.log("____________________________")
+      console.log(schoolData)
+      let query = {
+        userToken: this.$userToken,
+        id: schoolData.jobHunter.id
+      };
+      this.$axios
+        .get("api/schoolCertificate/findSchoolCertificateByUserId", {
+          params: query
+        })
+        .then(res => {
+          console.log(res);
+        });
+    },
     getEduInfo(eduData) {
       this.dialogEducation = true;
       let query = {
@@ -170,14 +155,15 @@ export default {
         });
     },
     getJobSeekerInfo() {
+      let query = {
+        userToken: this.$userToken
+      };
       this.$axios
         .get("api/jobHunterPosition/findJobHunterPositionList", {
-          params: {
-            userToken: this.$userToken
-          }
+          params: query
         })
         .then(res => {
-          console.log(res)
+          // console.log(res);
           if ((res.data.code = "0")) {
             this.jobSeekerInfoData = res.data.data;
           } else {

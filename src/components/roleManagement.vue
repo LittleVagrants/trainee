@@ -119,14 +119,14 @@ export default {
     },
     getRole() {
       let query = {
-        userToken: "4eaabded5c1f480d807a598187aef982"
+        userToken: this.$userToken
       };
       this.$axios
         .get("api/role/findRoleList",{params:query})
         .then(res => {
           if ((res.data.code = "0")) {
             this.roleList = res.data.data;
-            console.log(this.roleList);
+            // console.log(this.roleList);
           } else {
             console.log("请求失败！");
           }
@@ -134,7 +134,7 @@ export default {
     },
     getRoleInfo() {
       let query = {
-        userToken: "4eaabded5c1f480d807a598187aef982"
+        userToken: this.$userToken
       };
       this.$axios
         .get(
@@ -177,7 +177,7 @@ export default {
       let query = {
         roleId: this.roleId,
         newRoleId: this.newRoleId,
-        userToken: "4eaabded5c1f480d807a598187aef982"
+        userToken: this.$userToken
       };
       this.$axios.put("api/userRole/update", query).then(res => {
         this.roleInfoData[this.index].role.name = this.exchangeRoleName;
@@ -189,7 +189,7 @@ export default {
     selectRole(e) {
       console.log(e);
       let query = {
-        userToken: "4eaabded5c1f480d807a598187aef982",
+        userToken: this.$userToken,
         roleId:e
       };
       this.$axios
@@ -199,7 +199,7 @@ export default {
           if ((res.data.code = "0")) {
             console.log(res)
             this.roleInfoData = res.data.data;
-            console.log(this.roleInfoData)
+            // console.log(this.roleInfoData)
           } else {
             console.log("请求失败！");
           }

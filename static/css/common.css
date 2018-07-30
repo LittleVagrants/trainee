@@ -17,7 +17,7 @@
 }
 /* 操作头 */
 .functionalArea{
-  width: 270PX;
+  width: 290PX;
   height: 30px;
   padding:  1.2%;
   float: left;  
@@ -38,7 +38,7 @@
   width: 200px;
   height: 30px;
   border:lightgray 1px solid;
-  padding-left: .5%;
+  padding-left: 4%;
 }
 /* 搜索按钮 */
 .searchButton{
