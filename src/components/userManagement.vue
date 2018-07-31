@@ -55,7 +55,7 @@ export default {
       // 默认打开页
       current: 1,
       // 每页展示条数
-      size: 7,
+      size: 12,
       // 数据展示页
       currentPage: 1
     };

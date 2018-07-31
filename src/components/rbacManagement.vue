@@ -93,7 +93,7 @@ export default {
       //删除还是添加
       addOrDelete:null,
       // 每页展示条数
-      size: 7,
+      size: 12,
       // 数据展示页
       currentPage: 1,
       //改变的权限
