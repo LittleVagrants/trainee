@@ -120,6 +120,7 @@ export default {
 }
 
 #content > h2 {
+  width: 100%;
   line-height: 180px;
   color: white;
   margin: auto;
@@ -158,16 +159,19 @@ export default {
   font-size: 16px;
   margin-bottom: 15px;
 }
-
-.remeber {
-  height: 40px;
-  padding-left: 40px;
-  margin-top: 10px;
-  margin-bottom: 35px;
-  color: white;
+/* .login_btn {
+  padding-left: 5px;
+} */
+/* .el-form-item__content{
+  margin-left: 33px !important;
+} */
+.el-button{
+margin-left: 12px
 }
-
-.login_btn {
-  padding-left: 45px;
+.el-button--small, .el-button--small.is-round{
+  margin-top: 55px
+}
+.el-button--small, .el-button--small.is-round{
+  padding: 10px 30px
 }
 </style>

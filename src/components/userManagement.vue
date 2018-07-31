@@ -55,7 +55,7 @@ export default {
       // 默认打开页
       current: 1,
       // 每页展示条数
-      size: 12,
+      size: 7,
       // 数据展示页
       currentPage: 1
     };
@@ -92,7 +92,7 @@ export default {
     },
     getTableInfo() {
       let query = {
-        userToken: "4eaabded5c1f480d807a598187aef982"
+        userToken: this.$userToken
       };
       this.$axios.get("api/user/findUserList", { params: query }).then(res => {
         if ((res.data.code = "0")) {
@@ -115,7 +115,7 @@ export default {
     // 模糊搜索用户
     findUser() {
       let query = {
-        userToken: "4eaabded5c1f480d807a598187aef982",
+        userToken: this.$userToken,
         name: this.findUserName
       };
       this.$axios
@@ -139,7 +139,7 @@ export default {
     // 电话号码搜索用户
     findNum() {
       let query1 = {
-        userToken: "4eaabded5c1f480d807a598187aef982",
+        userToken: this.$userToken,
         phoneNumber: this.findPhoneNum
       };
       console.log(query1)
@@ -171,6 +171,4 @@ export default {
 };
 </script>
 <style scoped>
-.findBtn2{
-}
 </style>

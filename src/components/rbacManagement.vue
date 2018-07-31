@@ -33,12 +33,12 @@
         </el-table>
       </div>
 
-      <el-dialog :title="title" :visible.sync="dialogVisible" width="38.5%" :before-close="handleClose">
+      <el-dialog :title="title" :visible.sync="dialogVisible" width="43.5%" :before-close="handleClose">
         <el-form ref="form" label-width="100px">
           <el-form-item label="角色">
             <el-input v-model="rbacName" class="dialogInput"></el-input>
           </el-form-item>
-          <el-form-item>
+          <el-form-item label="拥有权限">
             <template>
               <el-transfer :titles="['未拥有权限', '已拥有权限']" v-model="value1" :data="data" @change = 'handleChange'></el-transfer>
             </template>
@@ -93,7 +93,7 @@ export default {
       //删除还是添加
       addOrDelete:null,
       // 每页展示条数
-      size: 12,
+      size: 7,
       // 数据展示页
       currentPage: 1,
       //改变的权限
