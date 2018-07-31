@@ -11,7 +11,7 @@
         </div>
         <div class="input">
           <p>密码</p>
-          <input type="password" v-model="password" placeholder="请输入密码">
+          <input type="password" v-model="password" placeholder="请输入密码"  @keyup.enter="submitForm">
         </div>
         <!-- <div class="remeber">
           <el-form-item class="rem" label="记住密码">
@@ -61,7 +61,7 @@ export default {
         password: this.password
       };
       this.$axios
-        .post("api/user/loginByPhoneNumberAndPassword", qs.stringify(query))
+        .post("api/user/loginByManager", qs.stringify(query))
         .then(res => {
           console.log(res)
           if (res.status == "200") {

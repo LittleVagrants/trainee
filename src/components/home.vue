@@ -33,6 +33,7 @@
                     <i class="iconfont  icon-qiuzhi" style="margin:3px"></i>求职管理</span>
                   <el-menu-item-group>
                     <el-menu-item index="/home/jobSeekerManagement">求职者信息</el-menu-item>
+                    <el-menu-item index="/home/successiveTrainee">历届管培生</el-menu-item>
                     <el-menu-item index="/home/albumManagement">相册管理</el-menu-item>
                   </el-menu-item-group>
                 </el-submenu>

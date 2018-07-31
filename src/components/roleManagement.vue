@@ -17,26 +17,24 @@
           <el-button type="primary" size="small" class="searchButton" @click="allRoleInfo">全部信息</el-button>
         </div>
       </div>
-
       <!-- 内容列表 -->
       <div class="contentDiv">
         <el-table :data="roleInfoData.slice((currentPage-1)*size,currentPage*size)" v-if="getRoleInfo">
-          <el-table-column prop="user.name" label="姓名" align="left">
+          <el-table-column :prop="isShowRole?'user.name':'name'" label="姓名" align="left">
           </el-table-column>
-          <el-table-column prop="user.phoneNumber" label="电话号码" align="left">
+          <el-table-column :prop="isShowRole?'user.phoneNumber':'phoneNumber'" label="电话号码" align="left">
           </el-table-column>
-          <el-table-column prop="user.sex" label="性别" align="left">
+          <el-table-column :prop="isShowRole?'user.sex':'sex'" label="性别" align="left">
           </el-table-column>
-          <el-table-column prop="user.birthday" label="生日" align="left">
+          <el-table-column :prop="isShowRole?'user.birthday':'birthday'" label="生日" align="left">
           </el-table-column>
-          <el-table-column prop="role.name" label="对应角色" align="left">
+          <el-table-column v-if="isShowRole" prop="role.name" label="对应角色" align="left">
           </el-table-column>
           <el-table-column label="操作" align="left">
             <template slot-scope="scope">
               <el-button type="primary" icon="el-icon-edit" circle size="mini" @click.native.prevent="chooseRoleUser(scope.$index,roleInfoData)"></el-button>
             </template>
           </el-table-column>
-
         </el-table>
       </div>
       <div class="paginationDiv">
@@ -73,6 +71,7 @@ export default {
       roleInfoData: [],
       roleList: [],
       roleUserName: "",
+      isShowRole: true,
       roleId: null,
       newRoleId: null,
       userRole: "",
@@ -123,7 +122,7 @@ export default {
       this.$axios.get("api/role/findRoleList", { params: query }).then(res => {
         if ((res.data.code = "0")) {
           this.roleList = res.data.data;
-          console.log(this.roleList);
+          // console.log(this.roleList);
         } else {
           console.log("请求失败！");
         }
@@ -138,12 +137,15 @@ export default {
         .then(res => {
           if ((res.data.code = "0")) {
             this.roleInfoData = res.data.data;
-            // console.log(res)
+            console.log(res);
             for (let i = 0; i < this.roleInfoData.length; i++) {
               if (this.roleInfoData[i].user.sex == false) {
                 this.roleInfoData[i].user.sex = "女";
               } else if (this.roleInfoData[i].user.sex == true) {
                 this.roleInfoData[i].user.sex = "男";
+              }
+              if (this.roleInfoData[i].user.phoneNumber == 0) {
+                this.roleInfoData[i].user.phoneNumber = "无";
               }
             }
           } else {
@@ -160,7 +162,7 @@ export default {
       this.roleId = data[i].role.id;
     },
     getNewRole(id) {
-      console.log(this.roleList[i])
+      // console.log(this.roleList[i])
       this.roleList[i].id = id;
     },
     // 根据选择值做出改变
@@ -170,7 +172,7 @@ export default {
         newRoleId: this.newRoleId,
         userToken: this.$userToken
       };
-      this.$axios.put("api/userRole/update", query).then(res => {
+      this.$axios.put("api/userRole/update", { params: query }).then(res => {
         this.roleInfoData[this.index].role.name = this.exchangeRoleName;
         // console.log(this.userRole)
         this.dialogVisible = false;
@@ -178,7 +180,7 @@ export default {
     },
     // 选择对应角色，select框
     selectRole(e) {
-      console.log(e);
+      this.isShowRole = false;
       let query = {
         userToken: this.$userToken,
         roleId: e
@@ -187,15 +189,26 @@ export default {
         .get("api/userRole/findUserByRole", { params: query })
         .then(res => {
           if ((res.data.code = "0")) {
-            console.log(res);
+            // console.log(res);
             this.roleInfoData = res.data.data;
-            // console.log(this.roleInfoData)
+            console.log(this.roleInfoData);
+            for (let i = 0; i < this.roleInfoData.length; i++) {
+              if (this.roleInfoData[i].sex == false) {
+                this.roleInfoData[i].sex = "女";
+              } else if (this.roleInfoData[i].sex == true) {
+                this.roleInfoData[i].sex = "男";
+              }
+              if (this.roleInfoData[i].phoneNumber == 0) {
+                this.roleInfoData[i].phoneNumber = "无";
+              }
+            }
           } else {
             console.log("请求失败！");
           }
         });
     },
     allRoleInfo() {
+      this.isShowRole = true;
       this.getRoleInfo();
     }
   },

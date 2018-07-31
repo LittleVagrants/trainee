@@ -19,7 +19,9 @@ const labelManagement = () =>
 // 职位管理
 const postManagement = () =>
   import ( /* webpackChunkName: "body" */ '@/components/postManagement')
-
+// 职位管理
+const successiveTrainee = () =>
+  import ( /* webpackChunkName: "body" */ '@/components/successiveTrainee')
 
 
 export default [{
@@ -77,6 +79,14 @@ export default [{
     component: postManagement,
     meta: {
       title: '职位管理'
+    }
+  },
+  {
+    path: 'successiveTrainee',
+    name: 'successiveTrainee',
+    component: successiveTrainee,
+    meta: {
+      title: '历届管培生'
     }
   }
 ]

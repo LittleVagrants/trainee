@@ -102,9 +102,9 @@ export default {
               this.tableInfoData[i].sex = "女";
             } else if (this.tableInfoData[i].sex == true) {
               this.tableInfoData[i].sex = "男";
-            };
-            if(this.tableInfoData[i].phoneNumber==0){
-              this.tableInfoData[i].phoneNumber="无"
+            }
+            if (this.tableInfoData[i].phoneNumber == 0) {
+              this.tableInfoData[i].phoneNumber = "无";
             }
           }
         } else {
@@ -142,7 +142,7 @@ export default {
         userToken: this.$userToken,
         phoneNumber: this.findPhoneNum
       };
-      console.log(query1)
+      console.log(query1);
       this.$axios
         .get("api/user/findUserByPhoneNumber", { params: query1 })
         .then(res => {
@@ -161,7 +161,7 @@ export default {
           }
         });
     },
-    allUserInfo(){
+    allUserInfo() {
       this.getTableInfo();
     }
   },
