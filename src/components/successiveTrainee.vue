@@ -18,7 +18,7 @@
           </el-table-column>
           <el-table-column prop="constellation" label="星座" align="left" width="100px">
           </el-table-column>
-          <el-table-column prop="position.name" label="培养方向" align="left" width="120px">
+          <el-table-column prop="position.name" label="职业" align="left" width="120px">
           </el-table-column>
           <el-table-column prop="startTime" label="培养开始时间" align="left" width="120px">
           </el-table-column>
@@ -48,8 +48,8 @@
             <el-input class="dialogInput" v-model="traineeName"></el-input>
           </el-form-item>
           <el-form-item label="性别" width="50px">
-            <el-select class="dropdownContent" v-model="traineeSex" placeholder="请选择角色" @change="getPosition">
-              <el-option v-for="item in allPosition" :key="item.index" :label="item.label" :value="item.value">
+            <el-select class="dropdownContent" v-model="traineeSex" placeholder="请选择角色">
+              <el-option v-for="item in sexSelect" :key="item.index" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
           </el-form-item>
@@ -60,8 +60,8 @@
             <el-input class="dialogInput" v-model="constellation"></el-input>
           </el-form-item>
           <el-form-item label="职业">
-            <el-select class="dropdownContent" v-model="traineeSex">
-              <el-option v-for="item in sexSelect" :key="item.index" :label="item.label" :value="item.value">
+            <el-select class="dropdownContent" v-model="orientation">
+              <el-option v-for="item in allPosition" :key="item.id" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
           </el-form-item>
@@ -86,7 +86,7 @@
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button size="small">取 消</el-button>
-          <el-button type="primary" size="small">确 定</el-button>
+          <el-button type="primary" size="small" @click="changePostInfo">确 定</el-button>
         </span>
       </el-dialog>
     </div>
@@ -151,13 +151,17 @@ export default {
   methods: {
     // 设置分页
     setCurrent(val) {
-      console.log(val);
+      // console.log(val);
       this.current = val;
       this.currentPage = val;
     },
     getPosition(){
       this.$axios.get("api/position/findPositionList").then(res=>{
-        console.log(res)
+        // console.log(res)
+        if(res.data.code==0){
+          this.allPosition=res.data.data
+          // console.log(this.allPosition)
+        }
       })
     },
     getSuccessiveTrainee() {
@@ -169,7 +173,7 @@ export default {
           params: query
         })
         .then(res => {
-          console.log(res);
+          // console.log(res);
           this.successiveInfoData = res.data.data;
           for (let i = 0; i < this.successiveInfoData.length; i++) {
             if (this.successiveInfoData[i].sex == false) {
@@ -210,14 +214,16 @@ export default {
         constellation: this.constellation,
         synopsis: this.evaluate,
         content: this.content,
-        photoFiles: ""
+        photoFiles: "111",
+        positionId:this.orientation,
+        startTime:this.startTime,
+        endTime:this.endTime
         // positionId:
       };
       this.$axios
         .post("api/successiveGuanPeiSheng/update", qs.stringify(query))
         .then(res => {
-          if (data.data.code == 0) {
-          }
+          console.log(res)
         });
     }
   },
