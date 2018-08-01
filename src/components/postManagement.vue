@@ -20,9 +20,9 @@
           <el-table-column prop="information" label="职位介绍" align="left" width="460">
           </el-table-column>
           <el-table-column prop="resources.id" label="职位照片" align="center">
-            <!-- <template  slot-scope="scope">
-              <img :src="'http://192.168.6.77:8080/resources/findResourcesById?id='+scope.row.resources.id" style="width=100px;height:100px" alt="">
-            </template> -->
+            <template  slot-scope="scope">
+              <img :src="'http://gpstapi.antup.me/resources/findResourcesById?id='+postInfoData.headPortrait.id" style="width=100px;height:100px" alt="">
+            </template>
             <template slot-scope="scope">
               <el-button type="primary" plain size="small" @click="getEduInfo(scope.row)">查看详情</el-button>
             </template>

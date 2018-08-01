@@ -48,7 +48,7 @@
           </el-form-item>
           <el-form-item label="对应角色">
             <el-select class="dialogSelect" @change="getNewRole" v-model="userRole">
-              <el-option v-for="item in roleList" :key="item.id" :label="item.name" :value="item.id">
+              <el-option v-for="item in roleList" :key="item.id+'liling'" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
           </el-form-item>
@@ -161,19 +161,24 @@ export default {
       this.index = i;
       this.roleId = data[i].role.id;
     },
-    getNewRole(id) {
-      // console.log(this.roleList[i])
-      this.roleList[i].id = id;
+    getNewRole(i) {
+      //console.log('--------------------------')
+      //console.log(this.roleList[i-1])
+      //获取选中的id
+      //this.newRoleId = this.roleList[i-1].id 
+      this.newRoleId = i;
+      this.roleId = this.roleInfoData[this.index].role.id
     },
     // 根据选择值做出改变
     changeUserRole() {
+      //console.log(this.newRoleId)
       let query = {
         roleId: this.roleId,
         newRoleId: this.newRoleId,
         userToken: this.$userToken
       };
-      this.$axios.put("api/userRole/update", { params: query }).then(res => {
-        this.roleInfoData[this.index].role.name = this.exchangeRoleName;
+      this.$axios.put("api/userRole/update", qs.stringify(query)).then(res => {
+        console.log(res)
         // console.log(this.userRole)
         this.dialogVisible = false;
       });

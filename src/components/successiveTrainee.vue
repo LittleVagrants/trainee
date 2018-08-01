@@ -24,7 +24,7 @@
           </el-table-column>
           <el-table-column prop="endTime" label="培养结束时间" align="left" width="140px">
           </el-table-column>
-          <el-table-column prop="synopsis" label="评价" align="left" width="280px">
+          <el-table-column prop="synopsis" label="评价" align="left" width="180px">
           </el-table-column>
           <el-table-column prop="content" label="心得体会" align="left">
           </el-table-column>
@@ -173,7 +173,7 @@ export default {
           params: query
         })
         .then(res => {
-          // console.log(res);
+          console.log(res);
           this.successiveInfoData = res.data.data;
           for (let i = 0; i < this.successiveInfoData.length; i++) {
             if (this.successiveInfoData[i].sex == false) {
@@ -213,8 +213,8 @@ export default {
         age: this.traineeAge,
         constellation: this.constellation,
         synopsis: this.evaluate,
-        content: this.content,
-        photoFiles: "111",
+        content: this.experience,
+        photoFiles: "",
         positionId:this.orientation,
         startTime:this.startTime,
         endTime:this.endTime
