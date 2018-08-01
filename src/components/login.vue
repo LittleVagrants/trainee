@@ -11,7 +11,7 @@
         </div>
         <div class="input">
           <p>密码</p>
-          <input type="password" v-model="password" placeholder="请输入密码"  @keyup.enter="submitForm">
+          <input type="password" v-model="password" placeholder="请输入密码" @keyup.enter="submitForm">
         </div>
         <!-- <div class="remeber">
           <el-form-item class="rem" label="记住密码">
@@ -63,18 +63,25 @@ export default {
       this.$axios
         .post("api/user/loginByManager", qs.stringify(query))
         .then(res => {
-          console.log(res)
+          console.log(res);
           if (res.status == "200") {
-            if (res.data.code == "1") {
-              console.log("密码或用户名错误")
-            } else if(res.data.code == "0"){
-              console.log("登陆成功")
-              sessionStorage.setItem('isLog','true');
+            if (res.data.code == "1" &res.data.data == null) {
+              this.$message({
+                type: "error",
+                message: "用户名或密码错误!"
+              });
+              console.log("密码或用户名错误");
+            } else if (res.data.code == "0") {
+              this.$message({
+                type: "success",
+                message: "登陆成功!"
+              });
+              console.log("登陆成功");
+              sessionStorage.setItem("isLog", "true");
               this.$router.push("/home/userManagement");
             }
-        } else {
-
-        }
+          } else {
+          }
         })
         .catch(err => {
           console.log(err);
@@ -83,7 +90,7 @@ export default {
     resetForm() {
       this.username = "";
       this.password = "";
-    },
+    }
     // remeberAdmin() {
     //   if (this.isRemeber) {
     //     window.localStorage.setItem("isRemeber", true);
@@ -165,13 +172,15 @@ export default {
 /* .el-form-item__content{
   margin-left: 33px !important;
 } */
-.el-button{
-margin-left: 12px
+.el-button {
+  margin-left: 12px;
 }
-.el-button--small, .el-button--small.is-round{
-  margin-top: 55px
+.el-button--small,
+.el-button--small.is-round {
+  margin-top: 55px;
 }
-.el-button--small, .el-button--small.is-round{
-  padding: 10px 30px
+.el-button--small,
+.el-button--small.is-round {
+  padding: 10px 30px;
 }
 </style>

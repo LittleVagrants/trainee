@@ -234,7 +234,7 @@ export default {
       this.index = i;
       this.postId = data.id;
     },
-    // 修改职位信息
+    // 修改&增加职位信息
     changePostInfo() {
       if (this.title === "修改职位信息") {
         let query = {

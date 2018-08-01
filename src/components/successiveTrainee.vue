@@ -5,15 +5,7 @@
       <div class="contentHeader">
         <h4>历届管培生</h4>
         <div class="functionalArea">
-          <input type="text" class="searchInput" placeholder="搜索姓名">
-          <el-button type="primary" size="small" class="searchButton">搜索</el-button>
-        </div>
-        <div class="functionalArea">
-          <input type="tel" class="searchInput" placeholder="搜索电话号码">
-          <el-button type="primary" size="small" class="searchButton">搜索</el-button>
-        </div>
-        <div class="functionalArea">
-          <el-button type="primary" size="small" class="searchButton">全部用户信息</el-button>
+          <el-button type="primary" size="small" class="addButton">添加信息</el-button>
         </div>
       </div>
       <div class="contentDiv">
@@ -22,7 +14,9 @@
           </el-table-column>
           <el-table-column prop="sex" label="男" align="left" width="100px">
           </el-table-column>
-          <el-table-column prop="age" label="年龄" align="left" width="100px">
+          <el-table-column prop="age" label="年龄" align="left" width="80px">
+          </el-table-column>
+          <el-table-column prop="constellation" label="星座" align="left" width="100px">
           </el-table-column>
           <el-table-column prop="position.name" label="培养方向" align="left" width="120px">
           </el-table-column>
@@ -34,9 +28,12 @@
           </el-table-column>
           <el-table-column prop="content" label="心得体会" align="left">
           </el-table-column>
-          <el-table-column label="操作" align="center">
+          <el-table-column label="头像" align="center">
+          </el-table-column>
+          <el-table-column label="操作" align="left">
             <template slot-scope="scope">
-              <el-button type="primary" icon="el-icon-edit" circle size="mini"></el-button>
+              <el-button type="primary" icon="el-icon-edit" circle size="mini" @click.native.prevent="chooseTrainee(scope.row,scope.$index)"></el-button>
+              <el-button type="danger" icon="el-icon-delete" circle size="mini" @click.native.prevent="dialogDeleteTrainee(scope.$index,postInfoData)"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -45,21 +42,94 @@
         <el-pagination ref="pages" layout=" total, prev, pager, next, jumper" :total="total" :page-size="size" @current-change="setCurrent">
         </el-pagination>
       </div>
+      <el-dialog :title="title" width="25%" :visible.sync="dialogVisible">
+        <el-form ref="form" label-width="100px">
+          <el-form-item label="姓名">
+            <el-input class="dialogInput" v-model="traineeName"></el-input>
+          </el-form-item>
+          <el-form-item label="性别" width="50px">
+            <el-select class="dropdownContent" v-model="traineeSex" placeholder="请选择角色" @change="getPosition">
+              <el-option v-for="item in allPosition" :key="item.index" :label="item.label" :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="年龄">
+            <el-input class="dialogInput" v-model="traineeAge"></el-input>
+          </el-form-item>
+          <el-form-item label="星座">
+            <el-input class="dialogInput" v-model="constellation"></el-input>
+          </el-form-item>
+          <el-form-item label="职业">
+            <el-select class="dropdownContent" v-model="traineeSex">
+              <el-option v-for="item in sexSelect" :key="item.index" :label="item.label" :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="开始时间">
+            <el-input class="dialogInput" v-model="startTime"></el-input>
+          </el-form-item>
+          <el-form-item label="结束时间">
+            <el-input class="dialogInput" v-model="endTime"></el-input>
+          </el-form-item>
+          <el-form-item label="评价">
+            <el-input class="dialogInput" v-model="evaluate"></el-input>
+          </el-form-item>
+          <el-form-item label="心得体会">
+            <el-input type="textarea" resize="none" rows="3" class="dialogInput" v-model="experience"></el-input>
+          </el-form-item>
+          <el-form-item label="头像">
+            <!-- <input type="file"> -->
+            <!-- <el-upload action="string" :http-request="uploadSectionFile" ref="upload" list-type="picture-card" :file-list='positionVisibleArr' :on-preview="handlePictureCardPreview" :auto-upload="false" :limit="6" :on-remove="handleRemove">
+              <i class="el-icon-plus"></i>
+            </el-upload> -->
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button size="small">取 消</el-button>
+          <el-button type="primary" size="small">确 定</el-button>
+        </span>
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
+import qs from "qs";
 export default {
   data() {
     return {
+      dialogVisible: false,
       successiveInfoData: [],
       // 默认打开页
       current: 1,
       // 每页展示条数
       size: 7,
       // 数据展示页
-      currentPage: 1
+      currentPage: 1,
+
+      allPosition:[],
+      // 弹框绑定
+      title: null,
+      traineeId: null,
+      traineeName: "",
+      traineeSex: "",
+      traineeAge: "",
+      constellation: "",
+      orientation: "",
+      startTime: "",
+      endTime: "",
+      evaluate: "",
+      experience: "",
+      sexSelect: [
+        {
+          value: true,
+          label: "男"
+        },
+        {
+          value: false,
+          label: "女"
+        }
+      ]
     };
   },
   watch: {},
@@ -85,6 +155,11 @@ export default {
       this.current = val;
       this.currentPage = val;
     },
+    getPosition(){
+      this.$axios.get("api/position/findPositionList").then(res=>{
+        console.log(res)
+      })
+    },
     getSuccessiveTrainee() {
       let query = {
         userToken: this.$userToken
@@ -104,10 +179,51 @@ export default {
             }
           }
         });
+    },
+    // 选择行信息
+    chooseTrainee(data, i) {
+      // console.log(data, i);
+      // console.log(data.id);
+      this.traineeId = data.id;
+      this.title = "修改历届管培生信息";
+      this.traineeName = data.name;
+      this.traineeSex = data.sex;
+      this.traineeAge = data.age;
+      this.constellation = data.constellation;
+      this.orientation = data.position.name;
+      this.startTime = data.startTime;
+      this.endTime = data.endTime;
+      this.evaluate = data.synopsis;
+      this.experience = data.content;
+      this.dialogVisible = true;
+    },
+    // 删除行信息
+    dialogDeleteTrainee() {},
+    // 修改职位信息
+    changePostInfo() {
+      // console.log("____________________");
+      let query = {
+        userToken: this.$userToken,
+        id: this.traineeId,
+        name: this.traineeName,
+        age: this.traineeAge,
+        constellation: this.constellation,
+        synopsis: this.evaluate,
+        content: this.content,
+        photoFiles: ""
+        // positionId:
+      };
+      this.$axios
+        .post("api/successiveGuanPeiSheng/update", qs.stringify(query))
+        .then(res => {
+          if (data.data.code == 0) {
+          }
+        });
     }
   },
   created() {
     this.getSuccessiveTrainee();
+    this.getPosition()
   }
 };
 </script>
