@@ -229,6 +229,7 @@ export default {
         this.$axios.get("api/rolePermission/findRoleAndPermission", { params: {userToken:this.$userToken} })
         .then(res => {
             this.allPermissionsInfo = res.data.data
+            console.log(this.allPermissionsInfo)
             for(let i=0;i<res.data.data.length;i++){
               if(res.data.data[i].role.id === data.roleId){
                 this.value1.push(res.data.data[i].permission.id)
@@ -252,16 +253,15 @@ export default {
         let tempDelete=[];
         for(let i=0;i<this.currentPermissions.length;i++){
           for(let j=0;j<this.allPermissionsInfo.length;j++){
-            if(this.currentPermissions[i] === this.allPermissionsInfo[j].permission.id){
+            if(this.currentPermissions[i] !== this.allPermissionsInfo[j].permission.id){
               // console.log(this.currentPermissions[i])
-            }else{
               tempAdd.push(this.currentPermissions[i])
               tempDelete.push(this.allPermissionsInfo[j].permission.id)
               // console.log(this.currentPermissions[i])
             }
           }
-          console.log(tempAdd)
-          console.log(tempDelete)
+          console.log( Array.from(new Set(tempAdd)))
+          console.log( Array.from(new Set(tempDelete)))
         }
         // let query = {
         //   userToken: this.$userToken,

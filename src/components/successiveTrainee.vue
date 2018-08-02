@@ -214,27 +214,27 @@ export default {
         return this.changeSex;
       }
     },
-    // addTrainee() {
-    //   this.traineeId = data.id;
-    //   this.title = "添加历届管培生信息";
-    //   this.traineeName = data.name;
-    //   this.traineeSex = data.sex;
-    //   this.traineeAge = data.age;
-    //   this.constellation = data.constellation;
-    //   this.orientation = data.position.id;
-    //   this.startTime = data.startTime;
-    //   this.endTime = data.endTime;
-    //   this.evaluate = data.synopsis;
-    //   this.experience = data.content;
-    //   this.dialogVisible = true;
-    //   if (this.sexSelect.value == true) {
-    //     this.changeSex = true;
-    //     return this.changeSex;
-    //   } else if (this.sexSelect == false) {
-    //     this.changeSex = false;
-    //     return this.changeSex;
-    //   }
-    // },
+    addTrainee() {
+      this.traineeId = data.id;
+      this.title = "添加历届管培生信息";
+      this.traineeName = data.name;
+      this.traineeSex = data.sex;
+      this.traineeAge = data.age;
+      this.constellation = data.constellation;
+      this.orientation = data.position.id;
+      this.startTime = data.startTime;
+      this.endTime = data.endTime;
+      this.evaluate = data.synopsis;
+      this.experience = data.content;
+      this.dialogVisible = true;
+      if (this.sexSelect.value == true) {
+        this.changeSex = true;
+        return this.changeSex;
+      } else if (this.sexSelect == false) {
+        this.changeSex = false;
+        return this.changeSex;
+      }
+    },
     // 删除行信息
     deleteTrainee(i, data) {
       this.$confirm("此操作将永久删除该管培生信息, 是否继续?", "提示", {
@@ -260,7 +260,7 @@ export default {
               // this.getLabelInfo()
             });
         })
-        .catch(() => {                                                                                                                                                                                                                                                                                                                                                                                                       
+        .catch(() => {
           this.$message({
             type: "info",
             message: "已取消删除"
@@ -269,39 +269,42 @@ export default {
     },
     // 修改历届管培生信息
     changeTraineeInfo() {
-      // console.log("____________________");
-      let query = {
-        sex: this.changeSex,
-        userToken: this.$userToken,
-        id: this.traineeId,
-        name: this.traineeName,
-        age: this.traineeAge,
-        constellation: this.constellation,
-        synopsis: this.evaluate,
-        content: this.experience,
-        photoFiles: null,
-        positionId: this.orientation,
-        startTime: this.startTime,
-        endTime: this.endTime
-        // positionId:
-      };
-      console.log(query);
-      this.$axios
-        .post("api/successiveGuanPeiSheng/update", qs.stringify(query))
-        .then(res => {
-          if (res.data.code == 0) {
-            this.dialogVisible = false;
-            this.$message({
-              type: "success",
-              message: "历届管培生信息修改成功!"
-            });
-          } else if (res.data.code == 1) {
-            this.$message({
-              type: "warning",
-              message: "修改信息有问题!"
-            });
-          }
-        });
+      if (this.title === "修改历届管培生信息") {
+        let query = {
+          sex: this.changeSex,
+          userToken: this.$userToken,
+          id: this.traineeId,
+          name: this.traineeName,
+          age: this.traineeAge,
+          constellation: this.constellation,
+          synopsis: this.evaluate,
+          content: this.experience,
+          photoFiles: null,
+          positionId: this.orientation,
+          startTime: this.startTime,
+          endTime: this.endTime
+          // positionId:
+        };
+        console.log(query);
+        this.$axios
+          .post("api/successiveGuanPeiSheng/update", qs.stringify(query))
+          .then(res => {
+            if (res.data.code == 0) {
+              this.dialogVisible = false;
+              this.$message({
+                type: "success",
+                message: "历届管培生信息修改成功!"
+              });
+            } else if (res.data.code == 1) {
+              this.$message({
+                type: "warning",
+                message: "修改信息有问题!"
+              });
+            }
+          });
+      }else if(this.title === "添加历届管培生信息"){
+
+      }
     }
   },
   created() {
