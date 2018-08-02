@@ -64,7 +64,7 @@
       </el-dialog>
       <el-dialog title="职位照片" :visible.sync="positionImgVisible" width="60%" :before-close="handleClose">
         <div>
-          <img v-for="item in positionImgArr" :key="item.id" class="viewPositionImg" :src="'/api/resources/findResourcesById?id='+item.positionPicture.id" alt="">
+          <img v-for="item in positionImgArr" :key="item.id" class="viewPositionImg" :src="'/api/resources/findResourcesById?id='+item.positionPicture" alt="">
         </div>
       </el-dialog>
     </div>

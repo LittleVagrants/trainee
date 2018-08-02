@@ -81,9 +81,11 @@
             <el-input type="textarea" resize="none" rows="3" class="dialogInput" v-model="experience"></el-input>
           </el-form-item>
           <el-form-item label="头像">
-            <el-upload action="string">
-              <i class="el-icon-plus"></i>
+            <el-upload class="avatar-uploader" action="https://jsonplaceholder.typicode.com/posts/" :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
+              <img v-if="imageUrl" :src="imageUrl" class="avatar">
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
             </el-upload>
+
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
@@ -132,7 +134,8 @@ export default {
           value: false,
           label: "女"
         }
-      ]
+      ],
+      imageUrl: ""
     };
   },
   watch: {},
@@ -215,28 +218,29 @@ export default {
       }
     },
     addTrainee() {
-      this.traineeId = data.id;
+      this.traineeId = "";
       this.title = "添加历届管培生信息";
-      this.traineeName = data.name;
-      this.traineeSex = data.sex;
-      this.traineeAge = data.age;
-      this.constellation = data.constellation;
-      this.orientation = data.position.id;
-      this.startTime = data.startTime;
-      this.endTime = data.endTime;
-      this.evaluate = data.synopsis;
-      this.experience = data.content;
+      this.traineeName = "";
+      this.traineeSex = "";
+      this.traineeAge = "";
+      this.constellation = "";
+      this.orientation = "";
+      this.startTime = "";
+      this.endTime = "";
+      this.evaluate = "";
+      this.experience = "";
       this.dialogVisible = true;
-      if (this.sexSelect.value == true) {
+      if (this.sexSelect.value === true) {
         this.changeSex = true;
         return this.changeSex;
-      } else if (this.sexSelect == false) {
+      } else if (this.sexSelect === false) {
         this.changeSex = false;
         return this.changeSex;
       }
     },
     // 删除行信息
     deleteTrainee(i, data) {
+      console.log(data[i])
       this.$confirm("此操作将永久删除该管培生信息, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -279,11 +283,10 @@ export default {
           constellation: this.constellation,
           synopsis: this.evaluate,
           content: this.experience,
-          photoFiles: null,
+          photoFiles: this.imageUrl,
           positionId: this.orientation,
           startTime: this.startTime,
           endTime: this.endTime
-          // positionId:
         };
         console.log(query);
         this.$axios
@@ -302,9 +305,53 @@ export default {
               });
             }
           });
-      }else if(this.title === "添加历届管培生信息"){
-
+      } else if (this.title === "添加历届管培生信息") {
+        let query = {
+          sex: this.changeSex,
+          userToken: this.$userToken,
+          name: this.traineeName,
+          age: this.traineeAge,
+          constellation: this.constellation,
+          synopsis: this.evaluate,
+          content: this.experience,
+          photoFiles: null,
+          positionId: this.orientation,
+          startTime: this.startTime,
+          endTime: this.endTime
+          // positionId:
+        };
+        this.$axios
+          .post("api/successiveGuanPeiSheng/save", qs.stringify(query))
+          .then(res => {
+            if (res.data.code == 0) {
+              this.dialogVisible = false;
+              this.$message({
+                type: "success",
+                message: "历届管培生信息添加成功!"
+              });
+            } else if (res.data.code == 1) {
+              this.$message({
+                type: "warning",
+                message: "所有信息均不能为空!"
+              });
+            }
+          });
       }
+    },
+    // 上传头像格式大小判断
+    handleAvatarSuccess(res, file) {
+      this.imageUrl = URL.createObjectURL(file.raw);
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === "image/jpeg" || file.type === "image/png";
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isJPG) {
+        this.$message.error("上传头像图片只能是 JPG和PNG 格式!");
+      }
+      if (!isLt2M) {
+        this.$message.error("上传头像图片大小不能超过 2MB!");
+      }
+      return isJPG && isLt2M;
     }
   },
   created() {
@@ -318,5 +365,28 @@ export default {
   width: 70px;
   height: 90px;
   /* margin: 30px; */
+}
+.avatar-uploader .el-upload {
+  border: 1px dashed gray;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409eff;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
 }
 </style>
