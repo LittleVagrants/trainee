@@ -222,7 +222,7 @@ export default {
               tempUrl.id = res.data.data[i].positionPicture.id;
               tempUrl.url =
                 "/api/resources/findResourcesById?id=" +
-                res.data.data[i].positionPicture.id;
+                res.data.data[i].positionPicture;
               this.positionVisibleArr.push(tempUrl);
               var tempUrl = {};
             }
