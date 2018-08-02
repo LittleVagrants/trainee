@@ -62,7 +62,7 @@
       <el-dialog :visible.sync="aImgVisible">
         <img width="100%" :src="dialogImageUrl" alt="">
       </el-dialog>
-      <el-dialog title="职位照片" :visible.sync="positionImgVisible" width="60%" :before-close="handleClose">
+      <el-dialog title="职位照片" :visible.sync="positionImgVisible" width="60%">
         <div>
           <img v-for="item in positionImgArr" :key="item.id" class="viewPositionImg" :src="'/api/resources/findResourcesById?id='+item.positionPicture" alt="">
         </div>
@@ -182,14 +182,6 @@ export default {
         this.$message.error("上传头像图片大小不能超过 2MB!");
       }
       return isJPG && isLt2M;
-    },
-    handleClose(done) {
-      this.$confirm("确认关闭？")
-        .then(_ => {
-          this.positionVisibleArr = [];
-          done();
-        })
-        .catch(_ => {});
     },
     // 获取职位信息
     getPostInfo(id) {
