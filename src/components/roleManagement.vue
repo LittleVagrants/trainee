@@ -73,6 +73,7 @@ export default {
       roleUserName: "",
       isShowRole: true,
       roleId: null,
+      userId: "",
       newRoleId: null,
       userRole: "",
       exchangeRoleName: "",
@@ -137,7 +138,7 @@ export default {
         .then(res => {
           if ((res.data.code = "0")) {
             this.roleInfoData = res.data.data;
-            console.log(res);
+            // console.log(res);
             for (let i = 0; i < this.roleInfoData.length; i++) {
               if (this.roleInfoData[i].user.sex == false) {
                 this.roleInfoData[i].user.sex = "女";
@@ -160,27 +161,25 @@ export default {
       this.dialogVisible = true;
       this.index = i;
       this.roleId = data[i].role.id;
+      this.userId = data[i].user.id;
     },
     getNewRole(i) {
-      //console.log('--------------------------')
-      //console.log(this.roleList[i-1])
-      //获取选中的id
-      //this.newRoleId = this.roleList[i-1].id 
       this.newRoleId = i;
-      this.roleId = this.roleInfoData[this.index].role.id
+      this.roleId = this.roleInfoData[this.index].role.id;
     },
     // 根据选择值做出改变
     changeUserRole() {
-      //console.log(this.newRoleId)
       let query = {
+        userId: this.userId,
         roleId: this.roleId,
         newRoleId: this.newRoleId,
         userToken: this.$userToken
       };
       this.$axios.put("api/userRole/update", qs.stringify(query)).then(res => {
-        console.log(res)
+        // console.log(res);
         // console.log(this.userRole)
         this.dialogVisible = false;
+        this.getRole();
       });
     },
     // 选择对应角色，select框
@@ -188,7 +187,7 @@ export default {
       this.isShowRole = false;
       let query = {
         userToken: this.$userToken,
-        roleId: e
+        roleId: this.roleList.id
       };
       this.$axios
         .get("api/userRole/findUserByRole", { params: query })

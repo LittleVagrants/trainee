@@ -68,7 +68,7 @@
       </el-dialog>
       <el-dialog title="在校证明" :visible.sync="dialogSchool" width="30%">
         <div class="schoolImg">
-          <img v-for="item in schoolInfoData" :key="item.id" class="viewPositionImg" :src="'/api/resources/findResourcesById?id='+item.schoolCertificate.id" alt="">
+          <img v-for="item in schoolInfoData" :key="item.id" class="viewPositionImg" :src="'/api/resources/findResourcesById?id='+item.schoolCertificate" alt="">
           <!-- +item.schoolCertificate.id -->
         </div>
       </el-dialog>

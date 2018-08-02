@@ -32,7 +32,7 @@
       <!-- 照片详情查看弹框 -->
       <el-dialog title="照片详情" :visible.sync="dialogPicture" width="30%">
         <div class="albumImg">
-          <img v-for="item in albumInfoData" :key="item.id" class="viewAlbumImg" :src="'/api/resources/findResourcesById?id='+item.resources.id" alt="">
+          <img v-for="item in albumInfoData" :key="item.id" class="viewAlbumImg" :src="'/api/resources/findResourcesById?id='+item.resources" alt="">
         </div>
         <span slot="footer" class="dialog-footer">
           <el-button type="primary" size="small">确 定</el-button>
@@ -76,7 +76,7 @@ export default {
   methods: {
     // 设置分页
     setCurrent(val) {
-      console.log(val);
+      // console.log(val);
       this.current = val;
       this.currentPage = val;
     },
@@ -85,6 +85,7 @@ export default {
         userToken: "4eaabded5c1f480d807a598187aef982"
       };
       this.$axios.get("api/user/findUserList", { params: query }).then(res => {
+        // console.log(res)
         if ((res.data.code = "0")) {
           this.tableInfoData = res.data.data;
         } else {
@@ -97,12 +98,13 @@ export default {
         userToken: this.$userToken,
         userId: albumData.id
       };
+      console.log(query)
       this.$axios
         .get("api/photo/findPhotoListByUserId", {
           params: query
         })
         .then(res => {
-          console.log(res);
+          // console.log(res);
           if ((res.status === 200) & (res.data.data != null)) {
             this.dialogPicture = true;
             this.albumInfoData = res.data.data;

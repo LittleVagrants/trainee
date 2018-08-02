@@ -5,7 +5,7 @@
       <div class="contentHeader">
         <h4>历届管培生</h4>
         <div class="functionalArea">
-          <el-button type="primary" size="small" class="addButton">添加信息</el-button>
+          <el-button type="primary" size="small" class="addButton" @click="addTrainee">添加信息</el-button>
         </div>
       </div>
       <div class="contentDiv">
@@ -28,12 +28,15 @@
           </el-table-column>
           <el-table-column prop="content" label="心得体会" align="left">
           </el-table-column>
-          <el-table-column label="头像" align="center">
+          <el-table-column prop="position" label="头像" align="center">
+            <template slot-scope="scope">
+              <img class="headePic" :src="'/api/resources/findResourcesById?id='+scope.row.headPortrait" alt="">
+            </template>
           </el-table-column>
           <el-table-column label="操作" align="left">
             <template slot-scope="scope">
               <el-button type="primary" icon="el-icon-edit" circle size="mini" @click.native.prevent="chooseTrainee(scope.row,scope.$index)"></el-button>
-              <el-button type="danger" icon="el-icon-delete" circle size="mini" @click.native.prevent="dialogDeleteTrainee(scope.$index,postInfoData)"></el-button>
+              <el-button type="danger" icon="el-icon-delete" circle size="mini" @click.native.prevent="deleteTrainee(scope.$index,successiveInfoData)"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -78,15 +81,14 @@
             <el-input type="textarea" resize="none" rows="3" class="dialogInput" v-model="experience"></el-input>
           </el-form-item>
           <el-form-item label="头像">
-            <!-- <input type="file"> -->
-            <!-- <el-upload action="string" :http-request="uploadSectionFile" ref="upload" list-type="picture-card" :file-list='positionVisibleArr' :on-preview="handlePictureCardPreview" :auto-upload="false" :limit="6" :on-remove="handleRemove">
+            <el-upload action="string">
               <i class="el-icon-plus"></i>
-            </el-upload> -->
+            </el-upload>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button size="small">取 消</el-button>
-          <el-button type="primary" size="small" @click="changePostInfo">确 定</el-button>
+          <el-button type="primary" size="small" @click="changeTraineeInfo">确 定</el-button>
         </span>
       </el-dialog>
     </div>
@@ -107,7 +109,7 @@ export default {
       // 数据展示页
       currentPage: 1,
 
-      allPosition:[],
+      allPosition: [],
       // 弹框绑定
       title: null,
       traineeId: null,
@@ -120,6 +122,7 @@ export default {
       endTime: "",
       evaluate: "",
       experience: "",
+      changeSex: true,
       sexSelect: [
         {
           value: true,
@@ -155,15 +158,17 @@ export default {
       this.current = val;
       this.currentPage = val;
     },
-    getPosition(){
-      this.$axios.get("api/position/findPositionList").then(res=>{
+    // 弹框选择职业，获取所有职位名
+    getPosition() {
+      this.$axios.get("api/position/findPositionList").then(res => {
         // console.log(res)
-        if(res.data.code==0){
-          this.allPosition=res.data.data
+        if (res.data.code == 0) {
+          this.allPosition = res.data.data;
           // console.log(this.allPosition)
         }
-      })
+      });
     },
+    // 获取管培生列表
     getSuccessiveTrainee() {
       let query = {
         userToken: this.$userToken
@@ -175,6 +180,7 @@ export default {
         .then(res => {
           console.log(res);
           this.successiveInfoData = res.data.data;
+          console.log(this.successiveInfoData[1].position);
           for (let i = 0; i < this.successiveInfoData.length; i++) {
             if (this.successiveInfoData[i].sex == false) {
               this.successiveInfoData[i].sex = "女";
@@ -194,19 +200,78 @@ export default {
       this.traineeSex = data.sex;
       this.traineeAge = data.age;
       this.constellation = data.constellation;
-      this.orientation = data.position.name;
+      this.orientation = data.position.id;
       this.startTime = data.startTime;
       this.endTime = data.endTime;
       this.evaluate = data.synopsis;
       this.experience = data.content;
       this.dialogVisible = true;
+      if (this.sexSelect.value == true) {
+        this.changeSex = true;
+        return this.changeSex;
+      } else if (this.sexSelect == false) {
+        this.changeSex = false;
+        return this.changeSex;
+      }
     },
+    // addTrainee() {
+    //   this.traineeId = data.id;
+    //   this.title = "添加历届管培生信息";
+    //   this.traineeName = data.name;
+    //   this.traineeSex = data.sex;
+    //   this.traineeAge = data.age;
+    //   this.constellation = data.constellation;
+    //   this.orientation = data.position.id;
+    //   this.startTime = data.startTime;
+    //   this.endTime = data.endTime;
+    //   this.evaluate = data.synopsis;
+    //   this.experience = data.content;
+    //   this.dialogVisible = true;
+    //   if (this.sexSelect.value == true) {
+    //     this.changeSex = true;
+    //     return this.changeSex;
+    //   } else if (this.sexSelect == false) {
+    //     this.changeSex = false;
+    //     return this.changeSex;
+    //   }
+    // },
     // 删除行信息
-    dialogDeleteTrainee() {},
-    // 修改职位信息
-    changePostInfo() {
+    deleteTrainee(i, data) {
+      this.$confirm("此操作将永久删除该管培生信息, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          let query = {
+            userToken: this.$userToken,
+            id: data[i].id
+          };
+          this.$axios
+            .delete("api/successiveGuanPeiSheng/delete", { params: query })
+            .then(res => {
+              this.$message({
+                type: "success",
+                message: "删除成功!"
+              });
+              // 本地删除，缺点，前后台若不同步，前后台数据不一致
+              this.successiveInfoData.splice(i, 1);
+              // 删除，重调接口
+              // this.getLabelInfo()
+            });
+        })
+        .catch(() => {                                                                                                                                                                                                                                                                                                                                                                                                       
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
+    },
+    // 修改历届管培生信息
+    changeTraineeInfo() {
       // console.log("____________________");
       let query = {
+        sex: this.changeSex,
         userToken: this.$userToken,
         id: this.traineeId,
         name: this.traineeName,
@@ -214,24 +279,41 @@ export default {
         constellation: this.constellation,
         synopsis: this.evaluate,
         content: this.experience,
-        photoFiles: "",
-        positionId:this.orientation,
-        startTime:this.startTime,
-        endTime:this.endTime
+        photoFiles: null,
+        positionId: this.orientation,
+        startTime: this.startTime,
+        endTime: this.endTime
         // positionId:
       };
+      console.log(query);
       this.$axios
         .post("api/successiveGuanPeiSheng/update", qs.stringify(query))
         .then(res => {
-          console.log(res)
+          if (res.data.code == 0) {
+            this.dialogVisible = false;
+            this.$message({
+              type: "success",
+              message: "历届管培生信息修改成功!"
+            });
+          } else if (res.data.code == 1) {
+            this.$message({
+              type: "warning",
+              message: "修改信息有问题!"
+            });
+          }
         });
     }
   },
   created() {
     this.getSuccessiveTrainee();
-    this.getPosition()
+    this.getPosition();
   }
 };
 </script>
 <style scoped>
+.headePic {
+  width: 70px;
+  height: 90px;
+  /* margin: 30px; */
+}
 </style>
