@@ -168,7 +168,6 @@ export default {
           this.$axios
             .delete("api/labels/delete", { params: query })
             .then(res => {
-              console.log(res);
               this.$message({
                 type: "success",
                 message: "删除成功!"
