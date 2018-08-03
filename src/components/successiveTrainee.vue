@@ -51,7 +51,7 @@
             <el-input class="dialogInput" v-model="traineeName"></el-input>
           </el-form-item>
           <el-form-item label="性别" width="50px">
-            <el-select class="dropdownContent" v-model="traineeSex" placeholder="请选择角色">
+            <el-select class="dropdownContent" @change="selectSex" v-model="traineeSex" placeholder="请选择性别">
               <el-option v-for="item in sexSelect" :key="item.index" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
@@ -63,7 +63,7 @@
             <el-input class="dialogInput" v-model="constellation"></el-input>
           </el-form-item>
           <el-form-item label="职业">
-            <el-select class="dropdownContent" v-model="orientation">
+            <el-select class="dropdownContent" @change="selectPosition" v-model="orientation" placeholder="请选择职业">
               <el-option v-for="item in allPosition" :key="item.id" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
@@ -85,7 +85,7 @@
               <img v-if="imageUrl" :src="imageUrl" class="avatar">
               <i v-else class="el-icon-plus avatar-uploader-icon"></i>
             </el-upload> -->
-            <el-upload action="string" :http-request="uploadSectionFile" ref="upload" list-type="picture-card" :file-list='editUserImg' :on-preview="handlePictureCardPreview" :auto-upload="false" :limit="1" :on-remove="handleRemove">
+            <el-upload action="string" :http-request="uploadSectionFile" ref="upload" list-type="picture-card" :file-list='editUserImg' :auto-upload="false" :limit="1" :on-remove="handleRemove">
               <i class="el-icon-plus"></i>
             </el-upload>
           </el-form-item>
@@ -112,7 +112,7 @@ export default {
       size: 7,
       // 数据展示页
       currentPage: 1,
-      editUserImg: [{ id: "1", url: "" }],
+      editUserImg: [],
       allPosition: [],
       // 弹框绑定
       title: null,
@@ -127,6 +127,7 @@ export default {
       evaluate: "",
       experience: "",
       changeSex: true,
+      file:null,
       sexSelect: [
         {
           value: true,
@@ -157,21 +158,49 @@ export default {
     }
   },
   methods: {
-    uploadSectionFile(param) {
-      var form = new FormData()
-      form.append("photoFiles", param.file)
-      form.append("userToken", this.$userToken)
-      form.append("name", this.traineeName)
-      form.append("age", this.traineeAge)
-      form.append("constellation", this.constellation)
-      form.append("synopsis", this.evaluate)
-      form.append("content", this.experience)
-      form.append("positionId", this.traineeAge)
-      form.append("age", this.traineeAge)
-      form.append("age", this.traineeAge)
-      form.append("age", this.traineeAge)
+    //选择职业
+    selectPosition(e) {
+      this.orientation = e;
     },
-    handlePictureCardPreview() {},
+    //选择性别
+    selectSex(e) {
+      this.traineeSex = e;
+    },
+    uploadSectionFile(param) {
+      this.file = param.file
+      var form = new FormData();
+      form.append("sex", this.traineeSex);
+      form.append("photoFiles", param.file);
+      form.append("userToken", this.$userToken);
+      form.append("name", this.traineeName);
+      form.append("age", this.traineeAge);
+      form.append("constellation", this.constellation);
+      form.append("synopsis", this.evaluate);
+      form.append("content", this.experience);
+      form.append("positionId", this.orientation);
+      form.append("startTime", this.startTime);
+      form.append("endTime", this.endTime);
+      this.$axios.post("/api/successiveGuanPeiSheng/save", form).then(res => {
+        if (res.status === 200) {
+          if (res.data.code === 0) {
+            this.$message({
+              type: "success",
+              message: "历届管培生资料保存成功"
+            });
+            this.dialogVisible = false
+            this.file = null
+            this.getSuccessiveTrainee();
+            this.getPosition();
+          } else {
+            this.$message({
+              type: "warning",
+              message: "请将信息补充完整!"
+            })
+            this.file = null
+          }
+        }
+      });
+    },
     handleRemove() {},
     // 设置分页
     setCurrent(val) {
@@ -214,21 +243,23 @@ export default {
     // 选择行信息
     chooseTrainee(data, i) {
       // console.log(data.id);
-      this.traineeId = data.id;
-      this.title = "修改历届管培生信息";
-      this.traineeName = data.name;
-      this.traineeSex = data.sex;
-      this.traineeAge = data.age;
-      this.constellation = data.constellation;
-      this.orientation = data.position.id;
-      this.startTime = data.startTime;
-      this.endTime = data.endTime;
-      this.evaluate = data.synopsis;
-      this.experience = data.content;
-      this.editUserImg[0].url =
-        "/api/resources/findResourcesById?id=" + data.headPortrait;
-      console.log(1);
-      console.log(this.editUserImg);
+      this.traineeId = data.id
+      this.title = "修改历届管培生信息"
+      this.traineeName = data.name
+      this.traineeSex = data.sex
+      this.traineeAge = data.age
+      this.constellation = data.constellation
+      this.orientation = data.position.id
+      this.startTime = data.startTime
+      this.endTime = data.endTime
+      this.evaluate = data.synopsis
+      this.experience = data.content
+      this.editUserImg = []
+      let obj = {id:0,url:''}
+      obj.id = data.id
+      obj.url = "/api/resources/findResourcesById?id=" + data.headPortrait
+      this.editUserImg.push(obj)
+      obj = null
       this.dialogVisible = true;
       if (this.sexSelect.value == true) {
         this.changeSex = true;
@@ -296,68 +327,48 @@ export default {
     // 修改历届管培生信息
     changeTraineeInfo() {
       if (this.title === "修改历届管培生信息") {
-        let query = {
-          sex: this.changeSex,
-          userToken: this.$userToken,
-          id: this.traineeId,
-          name: this.traineeName,
-          age: this.traineeAge,
-          constellation: this.constellation,
-          synopsis: this.evaluate,
-          content: this.experience,
-          photoFiles: this.imageUrl,
-          positionId: this.orientation,
-          startTime: this.startTime,
-          endTime: this.endTime
-        };
-        console.log(query);
-        this.$axios
-          .post("api/successiveGuanPeiSheng/update", qs.stringify(query))
-          .then(res => {
-            if (res.data.code == 0) {
-              this.dialogVisible = false;
-              this.$message({
-                type: "success",
-                message: "历届管培生信息修改成功!"
-              });
-            } else if (res.data.code == 1) {
-              this.$message({
-                type: "warning",
-                message: "修改信息有问题!"
-              });
-            }
-          });
+        console.log(this.file)
+        this.$refs.upload.submit()
+        // let query = {
+        //   sex: this.changeSex,
+        //   userToken: this.$userToken,
+        //   id: this.traineeId,
+        //   name: this.traineeName,
+        //   age: this.traineeAge,
+        //   constellation: this.constellation,
+        //   synopsis: this.evaluate,
+        //   content: this.experience,
+        //   photoFiles: this.imageUrl,
+        //   positionId: this.orientation,
+        //   startTime: this.startTime,
+        //   endTime: this.endTime
+        // };
+        // console.log(query);
+        // this.$axios
+        //   .post("api/successiveGuanPeiSheng/update", qs.stringify(query))
+        //   .then(res => {
+        //     if (res.data.code == 0) {
+        //       this.dialogVisible = false;
+        //       this.$message({
+        //         type: "success",
+        //         message: "历届管培生信息修改成功!"
+        //       });
+        //     } else if (res.data.code == 1) {
+        //       this.$message({
+        //         type: "warning",
+        //         message: "修改信息有问题!"
+        //       })
+        //     }
+        //   });
       } else if (this.title === "添加历届管培生信息") {
-        let query = {
-          sex: this.changeSex,
-          userToken: this.$userToken,
-          name: this.traineeName,
-          age: this.traineeAge,
-          constellation: this.constellation,
-          synopsis: this.evaluate,
-          content: this.experience,
-          photoFiles: null,
-          positionId: this.orientation,
-          startTime: this.startTime,
-          endTime: this.endTime
-          // positionId:
-        };
-        this.$axios
-          .post("api/successiveGuanPeiSheng/save", qs.stringify(query))
-          .then(res => {
-            if (res.data.code == 0) {
-              this.dialogVisible = false;
-              this.$message({
-                type: "success",
-                message: "历届管培生信息添加成功!"
-              });
-            } else if (res.data.code == 1) {
-              this.$message({
+        if(this.file !== null){
+          this.$refs.upload.submit()
+        }else{
+          this.$message({
                 type: "warning",
-                message: "所有信息均不能为空!"
-              });
-            }
-          });
+                message: "请将信息补充完整"
+              })
+        }
       }
     },
     // 上传头像格式大小判断

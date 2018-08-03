@@ -12,7 +12,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api' : {
-        // target: 'http://192.168.7.18:3000',  
+        // target: 'http://192.168.7.18:8080',  
         target: 'https://gpstapi.antup.me',
         changeOrigin:true,
         pathRewrite:{
