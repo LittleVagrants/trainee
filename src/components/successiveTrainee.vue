@@ -85,7 +85,7 @@
               <img v-if="imageUrl" :src="imageUrl" class="avatar">
               <i v-else class="el-icon-plus avatar-uploader-icon"></i>
             </el-upload> -->
-            <el-upload action="string" :http-request="uploadSectionFile" ref="upload" list-type="picture-card" :file-list='editUserImg' :auto-upload="false" :limit="1" :on-remove="handleRemove">
+            <el-upload action="string" :on-change='changeFile' :http-request="uploadSectionFile" ref="upload" list-type="picture-card" :file-list='editUserImg' :auto-upload="false" :limit="1" :on-remove="handleRemove">
               <i class="el-icon-plus"></i>
             </el-upload>
           </el-form-item>
@@ -127,7 +127,7 @@ export default {
       evaluate: "",
       experience: "",
       changeSex: true,
-      file:null,
+      file: null,
       sexSelect: [
         {
           value: true,
@@ -158,6 +158,9 @@ export default {
     }
   },
   methods: {
+    changeFile(file, fileList) {
+      this.file = file;
+    },
     //选择职业
     selectPosition(e) {
       this.orientation = e;
@@ -167,8 +170,12 @@ export default {
       this.traineeSex = e;
     },
     uploadSectionFile(param) {
-      this.file = param.file
       var form = new FormData();
+        if(this.traineeSex === '男'){
+        this.traineeSex = true
+      } else {
+        this.traineeSex = false
+      }
       form.append("sex", this.traineeSex);
       form.append("photoFiles", param.file);
       form.append("userToken", this.$userToken);
@@ -180,26 +187,52 @@ export default {
       form.append("positionId", this.orientation);
       form.append("startTime", this.startTime);
       form.append("endTime", this.endTime);
-      this.$axios.post("/api/successiveGuanPeiSheng/save", form).then(res => {
-        if (res.status === 200) {
-          if (res.data.code === 0) {
-            this.$message({
-              type: "success",
-              message: "历届管培生资料保存成功"
-            });
-            this.dialogVisible = false
-            this.file = null
-            this.getSuccessiveTrainee();
-            this.getPosition();
-          } else {
-            this.$message({
-              type: "warning",
-              message: "请将信息补充完整!"
-            })
-            this.file = null
+      if (this.title === "添加历届管培生信息") {
+        this.$axios.post("/api/successiveGuanPeiSheng/save", form).then(res => {
+          if (res.status === 200) {
+            if (res.data.code === 0) {
+              this.$message({
+                type: "success",
+                message: "历届管培生资料保存成功"
+              });
+              this.dialogVisible = false;
+              this.file = null;
+              this.getSuccessiveTrainee();
+              this.getPosition();
+              form = null
+            } else {
+              this.$message({
+                type: "warning",
+                message: "请将信息补充完整!"
+              });
+              this.file = null;
+            }
           }
-        }
-      });
+        })
+      } else {
+        form.append("id",this.traineeId)
+        this.$axios.post("/api/successiveGuanPeiSheng/update", form)
+          .then(res => {
+            if (res.status === 200) {
+              if (res.data.code === 0) {
+                this.$message({
+                  type: "success",
+                  message: "历届管培生资料更新成功"
+                });
+                this.dialogVisible = false
+                this.file = null
+                this.getSuccessiveTrainee()
+                this.getPosition()
+              } else {
+                this.$message({
+                  type: "warning",
+                  message: "请将信息补充完整!"
+                })
+                this.file = null
+              }
+            }
+          })
+      }
     },
     handleRemove() {},
     // 设置分页
@@ -213,10 +246,10 @@ export default {
       this.$axios.get("api/position/findPositionList").then(res => {
         // console.log(res)
         if (res.data.code == 0) {
-          this.allPosition = res.data.data;
+          this.allPosition = res.data.data
           // console.log(this.allPosition)
         }
-      });
+      })
     },
     // 获取管培生列表
     getSuccessiveTrainee() {
@@ -228,14 +261,12 @@ export default {
           params: query
         })
         .then(res => {
-          console.log(res);
-          this.successiveInfoData = res.data.data;
-          console.log(this.successiveInfoData[1].position);
+          this.successiveInfoData = res.data.data
           for (let i = 0; i < this.successiveInfoData.length; i++) {
             if (this.successiveInfoData[i].sex == false) {
-              this.successiveInfoData[i].sex = "女";
+              this.successiveInfoData[i].sex = "女"
             } else if (this.successiveInfoData[i].sex == true) {
-              this.successiveInfoData[i].sex = "男";
+              this.successiveInfoData[i].sex = "男"
             }
           }
         });
@@ -243,23 +274,23 @@ export default {
     // 选择行信息
     chooseTrainee(data, i) {
       // console.log(data.id);
-      this.traineeId = data.id
-      this.title = "修改历届管培生信息"
-      this.traineeName = data.name
-      this.traineeSex = data.sex
-      this.traineeAge = data.age
-      this.constellation = data.constellation
-      this.orientation = data.position.id
-      this.startTime = data.startTime
-      this.endTime = data.endTime
-      this.evaluate = data.synopsis
-      this.experience = data.content
-      this.editUserImg = []
-      let obj = {id:0,url:''}
-      obj.id = data.id
-      obj.url = "/api/resources/findResourcesById?id=" + data.headPortrait
-      this.editUserImg.push(obj)
-      obj = null
+      this.traineeId = data.id;
+      this.title = "修改历届管培生信息";
+      this.traineeName = data.name;
+      this.traineeSex = data.sex;
+      this.traineeAge = data.age;
+      this.constellation = data.constellation;
+      this.orientation = data.position.id;
+      this.startTime = data.startTime;
+      this.endTime = data.endTime;
+      this.evaluate = data.synopsis;
+      this.experience = data.content;
+      this.editUserImg = [];
+      let obj = { id: 0, url: "" };
+      obj.id = data.id;
+      obj.url = "/api/resources/findResourcesById?id=" + data.headPortrait;
+      this.editUserImg.push(obj);
+      obj = null;
       this.dialogVisible = true;
       if (this.sexSelect.value == true) {
         this.changeSex = true;
@@ -327,47 +358,53 @@ export default {
     // 修改历届管培生信息
     changeTraineeInfo() {
       if (this.title === "修改历届管培生信息") {
-        console.log(this.file)
-        this.$refs.upload.submit()
-        // let query = {
-        //   sex: this.changeSex,
-        //   userToken: this.$userToken,
-        //   id: this.traineeId,
-        //   name: this.traineeName,
-        //   age: this.traineeAge,
-        //   constellation: this.constellation,
-        //   synopsis: this.evaluate,
-        //   content: this.experience,
-        //   photoFiles: this.imageUrl,
-        //   positionId: this.orientation,
-        //   startTime: this.startTime,
-        //   endTime: this.endTime
-        // };
-        // console.log(query);
-        // this.$axios
-        //   .post("api/successiveGuanPeiSheng/update", qs.stringify(query))
-        //   .then(res => {
-        //     if (res.data.code == 0) {
-        //       this.dialogVisible = false;
-        //       this.$message({
-        //         type: "success",
-        //         message: "历届管培生信息修改成功!"
-        //       });
-        //     } else if (res.data.code == 1) {
-        //       this.$message({
-        //         type: "warning",
-        //         message: "修改信息有问题!"
-        //       })
-        //     }
-        //   });
+        console.log(this.file);
+        if (this.file !== null) {
+          this.$refs.upload.submit();
+        } else {
+          let query = {
+            sex: this.changeSex,
+            userToken: this.$userToken,
+            id: this.traineeId,
+            name: this.traineeName,
+            age: this.traineeAge,
+            constellation: this.constellation,
+            synopsis: this.evaluate,
+            content: this.experience,
+            positionId: this.orientation,
+            startTime: this.startTime,
+            endTime: this.endTime
+          };
+          console.log(query);
+          this.$axios
+            .post("api/successiveGuanPeiSheng/update", qs.stringify(query))
+            .then(res => {
+              if (res.data.code == 0) {
+                this.dialogVisible = false;
+                this.$message({
+                  type: "success",
+                  message: "历届管培生信息修改成功!"
+                });
+                this.dialogVisible = false;
+                this.file = null;
+                this.getSuccessiveTrainee();
+                this.getPosition();
+              } else if (res.data.code == 1) {
+                this.$message({
+                  type: "warning",
+                  message: "修改信息有问题!"
+                });
+              }
+            });
+        }
       } else if (this.title === "添加历届管培生信息") {
-        if(this.file !== null){
-          this.$refs.upload.submit()
-        }else{
+        if (this.file !== null) {
+          this.$refs.upload.submit();
+        } else {
           this.$message({
-                type: "warning",
-                message: "请将信息补充完整"
-              })
+            type: "warning",
+            message: "请将信息补充完整"
+          });
         }
       }
     },
