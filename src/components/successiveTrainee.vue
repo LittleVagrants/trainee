@@ -36,7 +36,7 @@
           <el-table-column label="操作" align="left">
             <template slot-scope="scope">
               <el-button type="primary" icon="el-icon-edit" circle size="mini" @click.native.prevent="chooseTrainee(scope.row,scope.$index)"></el-button>
-              <el-button type="danger" icon="el-icon-delete" circle size="mini" @click.native.prevent="deleteTrainee(scope.$index,successiveInfoData)"></el-button>
+              <el-button type="danger" icon="el-icon-delete" circle size="mini" @click.native.prevent="deleteTrainee(scope.$index,scope.row)"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -171,10 +171,10 @@ export default {
     },
     uploadSectionFile(param) {
       var form = new FormData();
-        if(this.traineeSex === '男'){
-        this.traineeSex = true
+      if (this.traineeSex === "男") {
+        this.traineeSex = true;
       } else {
-        this.traineeSex = false
+        this.traineeSex = false;
       }
       form.append("sex", this.traineeSex);
       form.append("photoFiles", param.file);
@@ -199,7 +199,7 @@ export default {
               this.file = null;
               this.getSuccessiveTrainee();
               this.getPosition();
-              form = null
+              form = null;
             } else {
               this.$message({
                 type: "warning",
@@ -208,10 +208,11 @@ export default {
               this.file = null;
             }
           }
-        })
+        });
       } else {
-        form.append("id",this.traineeId)
-        this.$axios.post("/api/successiveGuanPeiSheng/update", form)
+        form.append("id", this.traineeId);
+        this.$axios
+          .post("/api/successiveGuanPeiSheng/update", form)
           .then(res => {
             if (res.status === 200) {
               if (res.data.code === 0) {
@@ -219,19 +220,19 @@ export default {
                   type: "success",
                   message: "历届管培生资料更新成功"
                 });
-                this.dialogVisible = false
-                this.file = null
-                this.getSuccessiveTrainee()
-                this.getPosition()
+                this.dialogVisible = false;
+                this.file = null;
+                this.getSuccessiveTrainee();
+                this.getPosition();
               } else {
                 this.$message({
                   type: "warning",
                   message: "请将信息补充完整!"
-                })
-                this.file = null
+                });
+                this.file = null;
               }
             }
-          })
+          });
       }
     },
     handleRemove() {},
@@ -246,10 +247,10 @@ export default {
       this.$axios.get("api/position/findPositionList").then(res => {
         // console.log(res)
         if (res.data.code == 0) {
-          this.allPosition = res.data.data
+          this.allPosition = res.data.data;
           // console.log(this.allPosition)
         }
-      })
+      });
     },
     // 获取管培生列表
     getSuccessiveTrainee() {
@@ -261,12 +262,12 @@ export default {
           params: query
         })
         .then(res => {
-          this.successiveInfoData = res.data.data
+          this.successiveInfoData = res.data.data;
           for (let i = 0; i < this.successiveInfoData.length; i++) {
             if (this.successiveInfoData[i].sex == false) {
-              this.successiveInfoData[i].sex = "女"
+              this.successiveInfoData[i].sex = "女";
             } else if (this.successiveInfoData[i].sex == true) {
-              this.successiveInfoData[i].sex = "男"
+              this.successiveInfoData[i].sex = "男";
             }
           }
         });
@@ -333,7 +334,7 @@ export default {
         .then(() => {
           let query = {
             userToken: this.$userToken,
-            id: data[i].id
+            id: data.id
           };
           this.$axios
             .delete("api/successiveGuanPeiSheng/delete", { params: query })
@@ -343,9 +344,10 @@ export default {
                 message: "删除成功!"
               });
               // 本地删除，缺点，前后台若不同步，前后台数据不一致
-              this.successiveInfoData.splice(i, 1);
+              // this.successiveInfoData.splice(i, 1);
               // 删除，重调接口
-              // this.getLabelInfo()
+              this.getSuccessiveTrainee();
+              this.getPosition();
             });
         })
         .catch(() => {
@@ -385,7 +387,6 @@ export default {
                   type: "success",
                   message: "历届管培生信息修改成功!"
                 });
-                this.dialogVisible = false;
                 this.file = null;
                 this.getSuccessiveTrainee();
                 this.getPosition();

@@ -30,7 +30,7 @@
           <el-table-column label="操作" align="left">
             <template slot-scope="scope">
               <el-button type="primary" icon="el-icon-edit" circle size="mini" @click.native.prevent="choosePost(scope.row,scope.$index)"></el-button>
-              <el-button type="danger" icon="el-icon-delete" circle size="mini" @click.native.prevent="dialogDeletePost(scope.$index,postInfoData)"></el-button>
+              <el-button type="danger" icon="el-icon-delete" circle size="mini" @click.native.prevent="dialogDeletePost(scope.$index,scope.row)"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -309,7 +309,7 @@ export default {
         .then(() => {
           let query = {
             userToken: this.$userToken,
-            id: data[i].id
+            id: data.id
           };
           this.$axios
             .delete("api/position/delete", { params: query })
@@ -322,9 +322,9 @@ export default {
                     message: "删除成功!"
                   });
                   // 本地删除，缺点，前后台若不同步，前后台数据不一致
-                  this.postInfoData.splice(i, 1);
+                  // this.postInfoData.splice(i, 1);
                   // 删除，重调接口
-                  // this.getPostInfo()
+                  this.getPostInfo()
                 }
               }
             });

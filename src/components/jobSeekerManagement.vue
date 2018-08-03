@@ -27,6 +27,11 @@
           </el-table-column>
           <el-table-column prop="position.name" label="求职职位" align="center">
           </el-table-column>
+          <el-table-column label="照片" align="center" width="160">
+            <template slot-scope="scope">
+              <el-button type="primary" plain size="small" @click="getAlbumInfo(scope.row)">查看详情</el-button>
+            </template>
+          </el-table-column>
           <el-table-column prop="" label="在校证明" align="center">
             <template slot-scope="scope">
               <el-button type="primary" plain size="small" @click="getSchoolInfo(scope.row)">查看详情</el-button>
@@ -43,6 +48,15 @@
         <el-pagination ref="pages" layout=" total, prev, pager, next, jumper" :total="total" :page-size="size" @current-change="setCurrent">
         </el-pagination>
       </div>
+      <!-- 照片详情查看弹框 -->
+      <el-dialog title="照片详情" :visible.sync="dialogPicture" width="30%">
+        <div class="albumImg">
+          <img v-for="item in albumInfoData" :key="item.id" class="viewAlbumImg" :src="'/api/resources/findResourcesById?id='+item.resources" alt="">
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" size="small">确 定</el-button>
+        </span>
+      </el-dialog>
       <el-dialog :data="jobHunterInfoData" title="教育经历" :visible.sync="dialogEducation" width="30%">
         <div prop="teachersRecommend">
         </div>
@@ -185,16 +199,31 @@ export default {
           }
         });
     },
-    // selectJob() {
-    //   this.$axios.get("api/positionInformation/findPositionInformationList",{params:this.$userToken}).then(res => {
-    //     if ((res.data.code = "0")) {
-    //       console.log("1111111111111111111111");
-    //       this.jobInfo = res.data.data;
-    //     } else {
-    //       console.log("请求失败！");
-    //     }
-    //   });
-    // }
+
+    getAlbumInfo(albumData) {
+      let query = {
+        userToken: this.$userToken,
+        userId: albumData.id
+      };
+      console.log(query);
+      this.$axios
+        .get("api/photo/findPhotoListByUserId", {
+          params: query
+        })
+        .then(res => {
+          // console.log(res);
+          if ((res.status === 200) & (res.data.data != null)) {
+            this.dialogPicture = true;
+            this.albumInfoData = res.data.data;
+          } else {
+            this.dialogPicture = false;
+            this.$message({
+              type: "success",
+              message: "该用户没有上传照片!"
+            });
+          }
+        });
+    }
   },
   created() {
     this.getJobSeekerInfo();

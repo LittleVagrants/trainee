@@ -32,7 +32,7 @@
           </el-table-column>
           <el-table-column label="操作" align="left">
             <template slot-scope="scope">
-              <el-button type="primary" icon="el-icon-edit" circle size="mini" @click.native.prevent="chooseRoleUser(scope.$index,roleInfoData)"></el-button>
+              <el-button type="primary" icon="el-icon-edit" circle size="mini" @click.native.prevent="chooseRoleUser(scope.$index,scope.row)"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -156,16 +156,16 @@ export default {
     },
     // 弹框设置value值
     chooseRoleUser(i, data) {
-      this.roleUserName = data[i].user.name;
-      this.userRole = data[i].role.name;
+      this.roleUserName = data.user.name;
+      this.userRole = data.role.name;
       this.dialogVisible = true;
       this.index = i;
-      this.roleId = data[i].role.id;
-      this.userId = data[i].user.id;
+      this.roleId = data.role.id;
+      this.userId = data.user.id;
     },
     getNewRole(i) {
       this.newRoleId = i;
-      this.roleId = this.roleInfoData[this.index].role.id;
+      this.roleId = this.roleInfoData.role.id;
     },
     // 根据选择值做出改变
     changeUserRole() {
@@ -179,7 +179,8 @@ export default {
         // console.log(res);
         // console.log(this.userRole)
         this.dialogVisible = false;
-        this.getRole();
+        // this.getRole();
+            this.getRoleInfo();
       });
     },
     // 选择对应角色，select框
