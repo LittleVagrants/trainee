@@ -18,8 +18,8 @@
           </el-table-column>
           <el-table-column label="操作" align="left">
             <template slot-scope="scope">
-              <el-button type="primary" icon="el-icon-edit" circle size="mini" @click.native.prevent="chooseLabel(scope.$index,labelInfoData)"></el-button>
-              <el-button type="danger" icon="el-icon-delete" circle size="mini" @click.native.prevent="dialogDeleteLabel(scope.$index,labelInfoData)"></el-button>
+              <el-button type="primary" icon="el-icon-edit" circle size="mini" @click.native.prevent="chooseLabel(scope.$index,scope.row)"></el-button>
+              <el-button type="danger" icon="el-icon-delete" circle size="mini" @click.native.prevent="dialogDeleteLabel(scope.$index,scope.row)"></el-button>
             </template>
           </el-table-column>
 
@@ -85,7 +85,7 @@ export default {
     setCurrent(val) {
       console.log(val);
       this.current = val;
-      this.currentPage = val
+      this.currentPage = val;
     },
     handleClose(done) {
       this.$confirm("确认关闭？")
@@ -97,9 +97,9 @@ export default {
     // 弹框设置value值
     chooseLabel(i, data) {
       this.title = "修改标签";
-      this.labelName = data[i].name;
+      this.labelName = data.name;
       this.dialogVisible = true;
-      this.labelId = data[i].id;
+      this.labelId = data.id;
       this.index = i;
     },
     //添加标签
@@ -125,17 +125,18 @@ export default {
           } else {
             this.labelInfoData[this.index].name = this.labelName;
             this.dialogVisible = false;
-              this.$message({
-                type: "success",
-                message: "修改成功!"
-              });
+            this.getLabelInfo();
+            this.$message({
+              type: "success",
+              message: "修改成功!"
+            });
           }
         });
-      } else if(this.title === "添加标签"){
+      } else if (this.title === "添加标签") {
         let query = {
           userToken: this.$userToken,
           name: this.labelName
-        }
+        };
         this.$axios.post("api/labels/save", qs.stringify(query)).then(res => {
           if (this.labelName == "") {
             this.$message({
@@ -144,12 +145,12 @@ export default {
               type: "warning"
             });
           } else {
-            this.getLabelInfo()
-            this.dialogVisible = false
+            this.getLabelInfo();
+            this.dialogVisible = false;
             this.$message({
-                type: "success",
-                message: "添加成功!"
-              });
+              type: "success",
+              message: "添加成功!"
+            });
           }
         });
       }
@@ -162,8 +163,8 @@ export default {
       })
         .then(() => {
           let query = {
-            userToken:this.$userToken,
-            id: data[i].id
+            userToken: this.$userToken,
+            id: data.id
           };
           this.$axios
             .delete("api/labels/delete", { params: query })
@@ -173,9 +174,9 @@ export default {
                 message: "删除成功!"
               });
               // 本地删除，缺点，前后台若不同步，前后台数据不一致
-              this.labelInfoData.splice(i, 1);
+              // this.labelInfoData.splice(i, 1);
               // 删除，重调接口
-              // this.getLabelInfo()
+              this.getLabelInfo();
             });
         })
         .catch(() => {
