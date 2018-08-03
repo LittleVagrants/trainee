@@ -283,7 +283,6 @@ export default {
           .post("/api/position/save", qs.stringify(query))
           .then(res => {
             if (res.status === 200) {
-              console.log(res);
               if (res.data.msg === "职位添加成功") {
                 this.selectPositionId = res.data.data.id;
                 this.$refs.upload.submit();

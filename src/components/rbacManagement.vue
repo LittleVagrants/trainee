@@ -101,9 +101,7 @@ export default {
       //所有权限数据
       allPermissionsInfo: null,
       //当前权限
-      currentPermissions: null,
-      initPermissions: [],
-      myArr: []
+      currentPermissions: null
     };
   },
   watch: {},
@@ -124,16 +122,12 @@ export default {
   },
   methods: {
     handleChange(value, direction, movedKeys) {
-      this.currentPermissions = value;
+      // this.currentPermissions = value;
       this.addOrDelete = direction;
       this.cahngPermissions = movedKeys;
-      console.log(value);
-      console.log(direction);
-      console.log(movedKeys);
     },
     // 设置分页
     setCurrent(val) {
-      console.log(val);
       this.current = val;
       this.currentPage = val;
     },
@@ -151,6 +145,7 @@ export default {
       this.$axios.get("api/role/findRoleList", { params: query }).then(res => {
         if ((res.data.code = "0")) {
           this.roleList = res.data.data;
+          console.log(this.roleList);
         } else {
           console.log("请求失败！");
         }
@@ -186,7 +181,6 @@ export default {
               str = "";
               this.rbacInfoData.push(permissionsInfo);
             }
-            // console.log(this.rbacInfoData);
           } else {
             console.log("请求失败！");
           }
@@ -236,12 +230,12 @@ export default {
               params: { userToken: this.$userToken }
             })
             .then(res => {
+              this.currentPermissions = [];
               this.allPermissionsInfo = res.data.data;
               for (let i = 0; i < res.data.data.length; i++) {
                 if (res.data.data[i].role.id === data.roleId) {
                   this.value1.push(res.data.data[i].permission.id);
-                  this.initPermissions.push(res.data.data[i].permission.id);
-                  this.myArr.push(res.data.data[i].permission.id);
+                  this.currentPermissions.push(res.data.data[i].permission.id);
                 }
               }
             });
@@ -252,132 +246,86 @@ export default {
     addRoleRbac(e) {
       this.title = "添加角色";
       this.exchageRbacId = e;
+      this.rbacName = "";
+      this.value1 = [];
+      this.$axios
+        .get("/api/permission/findPermissionList", {
+          params: { userToken: this.$userToken }
+        })
+        .then(res => {
+          this.data = [];
+          for (let i = 0; i < res.data.data.length; i++) {
+            let obj = {
+              key: null,
+              label: null
+            };
+            obj.key = res.data.data[i].id;
+            obj.label = res.data.data[i].name;
+            this.data.push(obj);
+          }
+        });
       this.dialogVisible = true;
     },
-
-    diff(arr1, arr2) {
-      var newArr = [];
-      var arr3 = [];
-      for (var i = 0; i < arr1.length; i++) {
-        if (arr2.indexOf(arr1[i]) === -1) arr3.push(arr1[i]);
-      }
-      var arr4 = [];
-      for (var j = 0; j < arr2.length; j++) {
-        if (arr1.indexOf(arr2[j]) === -1) arr4.push(arr2[j]);
-      }
-      newArr = arr3.concat(arr4);
-      return newArr;
+    subArr(a, b) {
+      return a.filter(function(i) {
+        return b.indexOf(i) == -1;
+      });
     },
-
     exchageRbac() {
       // 修改权限管理
-      console.log(1);
       if (this.title === "修改权限") {
         // this.roleId=this.rbacInfoData[this.index].role.id;
         if (this.currentPermissions !== null) {
-          let tempAdd = [];
-          let tempDelete = [];
-          for (let i = 0; i < this.currentPermissions.length; i++) {
-            for (let j = 0; j < this.allPermissionsInfo.length; j++) {
-              if (
-                this.currentPermissions[i] !==
-                this.allPermissionsInfo[j].permission.id
-              ) {
-                tempAdd.push(this.currentPermissions[i]);
+          var deleteArr = this.subArr(this.currentPermissions, this.value1);
+          var addArr = this.subArr(this.value1, this.currentPermissions);
+          if (deleteArr.length > 0) {
+            let query = {
+              userToken: this.$userToken,
+              roleId: this.roleId.roleId,
+              perminssionIds: deleteArr.join(",")
+            };
+            this.$axios
+              .delete("/api/rolePermission/delete", { params: query })
+              .then(res => {});
+          }
+          if (addArr.length > 0) {
+            let query = {
+              userToken: this.$userToken,
+              roleId: this.roleId.roleId,
+              perminssionIds: addArr.join(",")
+            };
+            this.$axios
+              .post("/api/rolePermission/save", qs.stringify(query))
+              .then(res => {});
+          }
+          if (addArr.length > 0 || deleteArr.length > 0) {
+            this.$message({
+              showClose: true,
+              message: "权限修改成功!",
+              type: "success"
+            });
+            this.dialogVisible = false;
+            let str = "";
+            for (let i = 0; i < this.value1.length; i++) {
+              for (let j = 0; j < this.rbacAllRbacData.length; j++) {
+                if (this.value1[i] === this.rbacAllRbacData[j].id) {
+                  str += "、" + this.rbacAllRbacData[j].name;
+                }
               }
             }
-          }
-          tempAdd = Array.from(new Set(tempAdd));
-          var newArr = [];
-          var newArr1 = [];
-          var newArr2 = [];
-          for (let m = 0; m < tempAdd.length; m++) {
-            for (let n = 0; n < this.initPermissions.length; n++) {
-              if (tempAdd[m] === this.initPermissions[n]) {
-                newArr.push(tempAdd[m]);
-                newArr1.push(tempAdd[m]);
-                newArr2.push(tempAdd[m]);
+            this.roleId.roleId;
+            for (let k = 0; k < this.rbacInfoData.length; k++) {
+              if (this.rbacInfoData[k].roleId === this.roleId.roleId) {
+                this.rbacInfoData[k].permissions = str.substr(1);
               }
             }
+          } else {
+            this.$message({
+              showClose: true,
+              message: "你未修改权限!",
+              type: "warning"
+            });
           }
-          newArr = Array.from(new Set(newArr));
-          // console.log(newArr);
-          // for (let a = 0; a < this.initPermissions.length; a++) {
-          //   for (let b = 0; b < newArr1.length; b++) {
-          //     if (this.initPermissions[a] === newArr1[b]) {
-          //       // tempDelete.push(newArr[k]);
-          //       newArr2.splice(b, 1);
-          //     }
-          //   }
-          // }
-          // var myArr = []
-          for (let k = 0; k < newArr.length; k++) {
-            for (let l = 0; l < this.initPermissions.length; l++) {
-              if (newArr[k] === this.initPermissions[l]) {
-                // tempDelete.push(newArr[k]);
-                this.myArr.splice(l, 1);
-              }
-            }
-          }
-          console.log(this.initPermissions)
-          console.log(newArr1)
-        var y = this.diff(this.initPermissions,newArr)
-         var x= this.diff(this.initPermissions,tempAdd)
-          // tempDelete =  Array.from(new Set(tempDelete))
-          // console.log(11)
-          // myArr = Array.from(new Set(myArr))
-          let that = this;
-          console.log(3);
-          console.log(y);
-          console.log(2);
-          console.log(x);
-          // setTimeout(function() {
-          // if (this.initPermissions.length > 0) {
-          //   let query = {
-          //     userToken: this.$userToken,
-          //     roleId: this.roleId.roleId,
-          //     perminssionIds: this.initPermissions.join(",")
-          //   };
-          //   that.$axios
-          //     .delete("/api/rolePermission/delete", { params: query })
-          //     .then(res => {
-          //       console.log(res);
-          //       if (res.status === 200) {
-          //         if (res.data.msg === "角色删除权限成功") {
-          //           if (newArr.length > 0) {
-          //             let query1 = {
-          //               userToken: this.$userToken,
-          //               roleId: this.roleId.roleId,
-          //               perminssionIds: this.newArr.join(",")
-          //             };
-          //             this.$axios.post("/api/rolePermission/save",query1)
-          //             .then(res => {
-          //               console.log(res)
-          //               if(res.status === 200){
-          //                 this.dialogVisible = false;
-          //             this.$message({
-          //               showClose: true,
-          //               message: "权限修改成功",
-          //               type: "success"
-          //             });
-          //               }
-          //             })
-          //           } else {
-          //             this.dialogVisible = false;
-          //             this.$message({
-          //               showClose: true,
-          //               message: "权限修改成功",
-          //               type: "success"
-          //             });
-          //           }
-          //         }
-          //       }
-          //     });
-          // } else {
-          //   this.$axios.post("/api/rolePermission/save");
-          // }
-
-          // }, 1000);
         } else {
           this.$message({
             showClose: true,
@@ -385,31 +333,47 @@ export default {
             type: "warning"
           });
         }
-        // let query = {
-        //   userToken: this.$userToken,
-        //   roleId: this.roleId,
-        //   newPermissionId: this.exchageRbacId,
-        //   perminssionId: this.rbacId
-        // };
-        // console.log(query);
-        // this.$axios
-        //   .put("api/rolePermission/update", qs.stringify(query))
-        //   .then(res => {
-        //     console.log(res);
-        //     if ((res.data.code = "0")) {
-        //       // this.rbacInfoData[i].permission.name = ;
-        //       this.dialogVisible = false;
-        //       this.$message({
-        //         type: "success",
-        //         message: "修改成功!"
-        //       });
-        //     } else {
-        //     }
-        //   });
-      } else if (this.title === "添加权限") {
+      } else if (this.title === "添加角色") {
         // let query = {
         //   userToken = this.$userToken,
         // }
+        if (this.value1.length > 0) {
+          let query = {
+            userToken: this.$userToken,
+            name: this.rbacName
+          };
+          this.$axios.post("/api/role/save", qs.stringify(query)).then(res => {
+            if (res.status === 200) {
+              if (res.data.code === 0) {
+                let query = {
+                  userToken: this.$userToken,
+                  roleId: res.data.data.id,
+                  perminssionIds: this.value1.join(",")
+                };
+                this.$axios
+                  .post("/api/rolePermission/save", qs.stringify(query))
+                  .then(res => {
+                    if (res.status === 200) {
+                      if (res.data.code === 0) {
+                        this.$message({
+                          showClose: true,
+                          message: "角色添加成功",
+                          type: "success"
+                        })
+                        this.dialogVisible = false;
+                      }
+                    }
+                  });
+              }
+            }
+          });
+        } else {
+          this.$message({
+            showClose: true,
+            message: "你未给该角色设置权限，不能添加",
+            type: "warning"
+          })
+        }
       }
     }
   },

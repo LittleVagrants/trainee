@@ -81,15 +81,17 @@
             <el-input type="textarea" resize="none" rows="3" class="dialogInput" v-model="experience"></el-input>
           </el-form-item>
           <el-form-item label="头像">
-            <el-upload class="avatar-uploader" action="https://jsonplaceholder.typicode.com/posts/" :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
+            <!-- <el-upload class="avatar-uploader" action="https://jsonplaceholder.typicode.com/posts/" :file-list = "editUserImg" :show-file-list="true" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
               <img v-if="imageUrl" :src="imageUrl" class="avatar">
               <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload> -->
+            <el-upload action="string" :http-request="uploadSectionFile" ref="upload" list-type="picture-card" :file-list='editUserImg' :on-preview="handlePictureCardPreview" :auto-upload="false" :limit="1" :on-remove="handleRemove">
+              <i class="el-icon-plus"></i>
             </el-upload>
-
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button size="small">取 消</el-button>
+          <el-button size="small" @click="dialogVisible = false">取 消</el-button>
           <el-button type="primary" size="small" @click="changeTraineeInfo">确 定</el-button>
         </span>
       </el-dialog>
@@ -110,7 +112,7 @@ export default {
       size: 7,
       // 数据展示页
       currentPage: 1,
-
+      editUserImg: [{ id: "1", url: "" }],
       allPosition: [],
       // 弹框绑定
       title: null,
@@ -155,6 +157,22 @@ export default {
     }
   },
   methods: {
+    uploadSectionFile(param) {
+      var form = new FormData()
+      form.append("photoFiles", param.file)
+      form.append("userToken", this.$userToken)
+      form.append("name", this.traineeName)
+      form.append("age", this.traineeAge)
+      form.append("constellation", this.constellation)
+      form.append("synopsis", this.evaluate)
+      form.append("content", this.experience)
+      form.append("positionId", this.traineeAge)
+      form.append("age", this.traineeAge)
+      form.append("age", this.traineeAge)
+      form.append("age", this.traineeAge)
+    },
+    handlePictureCardPreview() {},
+    handleRemove() {},
     // 设置分页
     setCurrent(val) {
       // console.log(val);
@@ -195,7 +213,6 @@ export default {
     },
     // 选择行信息
     chooseTrainee(data, i) {
-      // console.log(data, i);
       // console.log(data.id);
       this.traineeId = data.id;
       this.title = "修改历届管培生信息";
@@ -208,6 +225,10 @@ export default {
       this.endTime = data.endTime;
       this.evaluate = data.synopsis;
       this.experience = data.content;
+      this.editUserImg[0].url =
+        "/api/resources/findResourcesById?id=" + data.headPortrait;
+      console.log(1);
+      console.log(this.editUserImg);
       this.dialogVisible = true;
       if (this.sexSelect.value == true) {
         this.changeSex = true;
@@ -218,6 +239,7 @@ export default {
       }
     },
     addTrainee() {
+      this.editUserImg = [];
       this.traineeId = "";
       this.title = "添加历届管培生信息";
       this.traineeName = "";
@@ -240,7 +262,7 @@ export default {
     },
     // 删除行信息
     deleteTrainee(i, data) {
-      console.log(data[i])
+      console.log(data[i]);
       this.$confirm("此操作将永久删除该管培生信息, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
