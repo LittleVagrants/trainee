@@ -39,7 +39,7 @@
         <el-pagination ref="pages" layout=" total, prev, pager, next, jumper" :total="total" :page-size="size" @current-change="setCurrent">
         </el-pagination>
       </div>
-      <el-dialog :title="title" :visible.sync="dialogVisible" width="60%" :before-close="handleClose">
+      <el-dialog :title="title" :visible.sync="dialogVisible" width="60%">
         <el-form ref="form" label-width="100px">
           <el-form-item label="职位">
             <el-input class="dialogInput" v-model="postName"></el-input>

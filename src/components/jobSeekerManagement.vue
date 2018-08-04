@@ -54,7 +54,7 @@
           <img v-for="item in albumInfoData" :key="item.id" class="viewAlbumImg" :src="'/api/resources/findResourcesById?id='+item.resources" alt="">
         </div>
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" size="small">确 定</el-button>
+          <el-button type="primary" size="small" @click="dialogPicture=false">确 定</el-button>
         </span>
       </el-dialog>
       <el-dialog :data="jobHunterInfoData" title="教育经历" :visible.sync="dialogEducation" width="30%">
@@ -97,6 +97,7 @@ export default {
       // 名师点评，教育经历，简历弹框判断
       dialogSchool: false,
       dialogEducation: false,
+      dialogPicture: false,
       dialogResume: false,
       eduInfoData: {
         school: "",
@@ -114,7 +115,8 @@ export default {
       jobSeekerInfoData: [],
       jobHunterInfoData: [],
       schoolInfoData: [],
-      jobInfo: []
+      jobInfo: [],
+      albumInfoData: [],
     };
   },
   watch: {},
@@ -201,11 +203,12 @@ export default {
     },
 
     getAlbumInfo(albumData) {
+      console.log(albumData)
       let query = {
         userToken: this.$userToken,
-        userId: albumData.id
+        userId: albumData.jobHunter.user.id
       };
-      console.log(query);
+      // console.log(query);
       this.$axios
         .get("api/photo/findPhotoListByUserId", {
           params: query
@@ -251,6 +254,13 @@ export default {
   padding: 0 21%;
 }
 .viewPositionImg {
+  width: 300px;
+  margin: 30px auto;
+}
+.albumImg {
+  padding: 0 22%;
+}
+.viewAlbumImg {
   width: 300px;
   margin: 30px auto;
 }

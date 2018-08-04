@@ -11,15 +11,15 @@ const rbacManagement = () =>
 const jobSeekerManagement = () =>
   import ( /* webpackChunkName: "body" */ '@/components/jobSeekerManagement')
 // 相册管理
-const albumManagement = () =>
-  import ( /* webpackChunkName: "body" */ '@/components/albumManagement')
+// const albumManagement = () =>
+//   import ( /* webpackChunkName: "body" */ '@/components/albumManagement')
 // 标签管理
 const labelManagement = () =>
   import ( /* webpackChunkName: "body" */ '@/components/labelManagement')
 // 职位管理
 const postManagement = () =>
   import ( /* webpackChunkName: "body" */ '@/components/postManagement')
-// 职位管理
+// 历届管培生管理
 const successiveTrainee = () =>
   import ( /* webpackChunkName: "body" */ '@/components/successiveTrainee')
 
@@ -56,21 +56,21 @@ export default [{
       title: '求职管理'
     }
   },
-  {
-    path: 'albumManagement',
-    name: 'albumManagement',
-    component: albumManagement,
-    meta: {
-      title: '相册管理'
-    }
+  // {
+  //   path: 'albumManagement',
+  //   name: 'albumManagement',
+  //   component: albumManagement,
+  //   meta: {
+  //     title: '相册管理'
+  //   }
 
-  },
+  // },
   {
     path: 'labelManagement',
     name: 'labelManagement',
     component: labelManagement,
     meta: {
-      title: '相册管理'
+      title: '标签管理'
     }
   },
   {

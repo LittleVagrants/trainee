@@ -71,3 +71,27 @@
 .dialogSelect{
   width: 78%
 }
+.el-submenu__title {
+  color: white;
+}
+.el-submenu__title:hover {
+  background-color: #2d3b46;
+}
+.el-submenu__title i {
+  color: white;
+}
+.el-menu-item i {
+  color: white;
+}
+.el-submenu,
+.el-menu-item {
+  min-width: auto;
+  background-color: #28323b;
+  color: white;
+}
+.el-menu-item-group__title {
+  padding: 0;
+}
+.hello .el-menu-item:hover {
+  background-color: #2d3b46;
+}

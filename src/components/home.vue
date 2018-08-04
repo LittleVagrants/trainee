@@ -34,7 +34,7 @@
                   <el-menu-item-group>
                     <el-menu-item index="/home/jobSeekerManagement">求职者信息</el-menu-item>
                     <el-menu-item index="/home/successiveTrainee">历届管培生</el-menu-item>
-                    <el-menu-item index="/home/albumManagement">相册管理</el-menu-item>
+                    <!-- <el-menu-item index="/home/albumManagement">相册管理</el-menu-item> -->
                   </el-menu-item-group>
                 </el-submenu>
                 <el-menu-item index="/home/labelManagement">
@@ -159,27 +159,6 @@ h2 {
 .hello i {
   display: inline-block;
 }
-.hello .el-submenu,
-.el-menu-item {
-  min-width: auto;
-  background-color: #28323b;
-  color: white;
-}
-.el-menu-item-group__title {
-  padding: 0;
-}
-.el-submenu__title {
-  color: white;
-}
-.el-submenu__title:hover {
-  background-color: #2d3b46;
-}
-.el-submenu__title i {
-  color: white;
-}
-.el-menu-item i {
-  color: white;
-}
 .hello .el-menu {
   border-right: none;
 }
@@ -195,8 +174,5 @@ h2 {
 .hello .is-active {
   background-color: #2d3b46;
   color: white;
-}
-.hello .el-menu-item:hover {
-  background-color: #2d3b46;
 }
 </style>
